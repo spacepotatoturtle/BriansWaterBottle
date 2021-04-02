@@ -40,6 +40,7 @@ public class Shooter {
         }
 
         telemetry.addData("Shooter Power: ", robot.shooter0.getPower());
+        telemetry.addData("Flap Position: ", robot.flappyFlap.getPosition());
     }
 
     public void hopperDown() {
