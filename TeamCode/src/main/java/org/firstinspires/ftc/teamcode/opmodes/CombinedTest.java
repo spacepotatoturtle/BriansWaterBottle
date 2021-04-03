@@ -20,6 +20,7 @@ public class CombinedTest extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap);
+        wobbler.init();
 
         waitForStart();
 
@@ -28,7 +29,7 @@ public class CombinedTest extends LinearOpMode {
             drive.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.b);
             intake.intake(gamepad2.right_bumper, gamepad2.left_bumper || (gamepad2.left_trigger != 0 && gamepad2.left_trigger != 1), gamepad2.b);
             shooter.shoot(gamepad2.left_trigger, gamepad2.dpad_up, gamepad2.dpad_down, gamepad2.left_trigger > 0 || gamepad2.x, gamepad2.left_trigger == 0 || gamepad2.y, gamepad2.right_trigger > 0.5);
-            wobbler.wobble(gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_right);
+            wobbler.wobble(gamepad1.x, false, false, gamepad1.dpad_right, gamepad1.dpad_down, gamepad1.dpad_up);
 
             telemetry.update();
 

@@ -20,7 +20,7 @@ public class WobblerTest extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            wobbler.wobble(gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_right);
+            wobbler.wobble(gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_right, gamepad1.a, gamepad1.x);
 
             telemetry.update();
 
