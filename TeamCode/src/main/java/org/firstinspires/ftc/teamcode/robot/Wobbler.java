@@ -25,17 +25,17 @@ public class Wobbler {
     }
 
     public void pickUp() {
+        robot.wobbleArm1.setPosition(0.07);
+        robot.wobbleArm2.setPosition(0.07);
+        robot.wobbleArm3.setPosition(0.07);
+        robot.wobbleArm4.setPosition(0.07);
+    }
+
+    public void overWall() {
         robot.wobbleArm1.setPosition(0.22);
         robot.wobbleArm2.setPosition(0.22);
         robot.wobbleArm3.setPosition(0.22);
         robot.wobbleArm4.setPosition(0.22);
-    }
-
-    public void overWall() {
-        robot.wobbleArm1.setPosition(0.04);
-        robot.wobbleArm2.setPosition(0.04);
-        robot.wobbleArm3.setPosition(0.04);
-        robot.wobbleArm4.setPosition(0.04);
     }
 
     public void init() {

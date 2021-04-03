@@ -15,14 +15,14 @@ public class Auto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         RoadrunnerDrive drive = new RoadrunnerDrive(hardwareMap);
 
-        Pose2d startingPose = new Pose2d(9, 39, 0);
-        Pose2d avoidancePose = new Pose2d(24, 60, 0);
-        Pose2d powerShotPose = new Pose2d(72, 60, 0);
+        Pose2d startingPose = new Pose2d(9, -39, 0);
+        Pose2d avoidancePose = new Pose2d(24, -60, 0);
+        Pose2d powerShotPose = new Pose2d(72, -60, 0);
         Pose2d zonePose;
-        Pose2d collectPose = new Pose2d(36, 36, -Math.PI);
-        Pose2d wobblePose = new Pose2d(36, 36, 0);
-        Pose2d goalPose = new Pose2d(72, 36, 0);
-        Pose2d parkPose = new Pose2d(84, 36, 0);
+        Pose2d collectPose = new Pose2d(36, -36, -Math.PI);
+        Pose2d wobblePose = new Pose2d(36, -36, 0);
+        Pose2d goalPose = new Pose2d(72, -36, 0);
+        Pose2d parkPose = new Pose2d(84, -36, 0);
 
         drive.setPoseEstimate(startingPose);
 
@@ -32,60 +32,76 @@ public class Auto extends LinearOpMode {
 
         int numRings = 0;
         if (numRings == 0) {
-            zonePose = new Pose2d(132, 24, -Math.PI / 2);
+            zonePose = new Pose2d(84, 24, -Math.PI / 2);
         } else if (numRings == 1) {
             zonePose = new Pose2d(108, 48, -Math.PI / 2);
         } else {
-            zonePose = new Pose2d(84, 24, -Math.PI / 2);
+            zonePose = new Pose2d(132, 24, -Math.PI / 2);
         }
 
         Trajectory toNotRings = drive.trajectoryBuilder(startingPose)
-                .splineTo(avoidancePose.vec(), avoidancePose.getHeading())
+                .splineTo(new Vector2d(avoidancePose.getX(), avoidancePose.getY()), avoidancePose.getHeading())
                 .build();
 
         Trajectory toPowerBars = drive.trajectoryBuilder(avoidancePose)
-                .splineTo(powerShotPose.vec(), powerShotPose.getHeading())
+                .splineTo(new Vector2d(powerShotPose.getX(), powerShotPose.getY()), powerShotPose.getHeading())
                 .build();
 
         // Shooty shooty interval 7.5 inches
 
         Trajectory toZone0 = drive.trajectoryBuilder(powerShotPose)
-                .splineTo(zonePose.vec(), zonePose.getHeading())
+                .splineToLinearHeading(zonePose, zonePose.getHeading())
                 .build();
 
         // Intake like crazy now
 
         Trajectory toCollect = drive.trajectoryBuilder(zonePose)
-                .splineTo(collectPose.vec(), collectPose.getHeading())
-                .build();
-
-        Trajectory toWobble = drive.trajectoryBuilder(collectPose)
-                .splineTo(wobblePose.vec(), wobblePose.getHeading())
+                .splineTo(new Vector2d(collectPose.getX(), collectPose.getY()), collectPose.getHeading())
                 .build();
 
         Trajectory toGoal = drive.trajectoryBuilder(wobblePose)
-                .splineTo(goalPose.vec(), goalPose.getHeading())
+                .splineTo(new Vector2d(goalPose.getX(), goalPose.getY()), goalPose.getHeading())
                 .build();
 
         // More shooting
 
         Trajectory toZone1 = drive.trajectoryBuilder(goalPose)
-                .splineTo(zonePose.vec(), zonePose.getHeading())
+                .splineToLinearHeading(zonePose, zonePose.getHeading())
                 .build();
 
         Trajectory toPark = drive.trajectoryBuilder(zonePose)
-                .splineTo(parkPose.vec(), parkPose.getHeading())
+                .splineTo(new Vector2d(parkPose.getX(), parkPose.getY()), parkPose.getHeading())
                 .build();
 
         drive.followTrajectory(toNotRings);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toPowerBars);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toZone0);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toCollect);
-        drive.followTrajectory(toWobble);
+        drive.update();
+        sleep(2000);
+        drive.turn(Math.PI);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toGoal);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toZone1);
+        drive.update();
+        sleep(2000);
         drive.followTrajectory(toPark);
 
         sleep(2000);
+    }
+
+    public Trajectory spline(RoadrunnerDrive drive, Pose2d start, Pose2d end) {
+        return drive.trajectoryBuilder(start)
+                .splineTo(new Vector2d(end.getX(), end.getY()), end.getHeading())
+                .build();
     }
 }

@@ -18,7 +18,7 @@ public class ShooterTest extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            shooter.shoot(gamepad1.right_trigger, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.b, gamepad1.y, gamepad1.dpad_right);
+            shooter.shoot(gamepad1.right_trigger, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.b, gamepad1.y, gamepad1.dpad_right, false, false);
 
             telemetry.update();
 

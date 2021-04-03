@@ -1,33 +1,4 @@
-/* Copyright (c) 2020 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.robot;
 
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
@@ -37,9 +8,11 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.android.util.Size;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
@@ -67,171 +40,151 @@ import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- * This OpMode illustrates how to open a webcam and retrieve images from it. It requires a configuration
- * containing a webcam with the default name ("Webcam 1"). When the opmode runs, pressing the 'A' button
- * will cause a frame from the camera to be written to a file on the device, which can then be retrieved
- * by various means (e.g.: Device File Explorer in Android Studio; plugging the device into a PC and
- * using Media Transfer; ADB; etc)
+/* Class for drive functionality. Called in other classes.
  */
-@TeleOp(name="Concept: Webcam", group ="Concept")
-public class Vision extends LinearOpMode {
 
-    //----------------------------------------------------------------------------------------------
-    // State
-    //----------------------------------------------------------------------------------------------
-
+public class Vision {
     private static final String TAG = "Webcam Sample";
-
-    /** How long we are to wait to be granted permission to use the camera before giving up. Here,
-     * we wait indefinitely */
     private static final int secondsPermissionTimeout = Integer.MAX_VALUE;
 
-    /** State regarding our interaction with the camera */
     private CameraManager cameraManager;
     private WebcamName cameraName;
     private Camera camera;
     private CameraCaptureSession cameraCaptureSession;
 
-    /** The queue into which all frames from the camera are placed as they become available.
-     * Frames which are not processed by the OpMode are automatically discarded. */
     private EvictingBlockingQueue<Bitmap> frameQueue;
 
-    /** State regarding where and how to save frames when the 'A' button is pressed. */
     private int captureCounter = 0;
     private File captureDirectory = AppUtil.ROBOT_DATA_DIR;
 
-    /** A utility object that indicates where the asynchronous callbacks from the camera
-     * infrastructure are to run. In this OpMode, that's all hidden from you (but see {@link #startCamera}
-     * if you're curious): no knowledge of multi-threading is needed here. */
     private Handler callbackHandler;
 
-    //----------------------------------------------------------------------------------------------
-    // Main OpMode entry
-    //----------------------------------------------------------------------------------------------
+    Telemetry telemetry;
 
-    @Override public void runOpMode() {
+    int numRings = 0;
+
+    boolean buttonPressSeen = false;
+    boolean captureWhenAvailable = false;
+
+    public Vision(Telemetry telemetryInstance, HardwareMap hwMap) {
+
+        telemetry = telemetryInstance;
 
         callbackHandler = CallbackLooper.getDefault().getHandler();
 
         cameraManager = ClassFactory.getInstance().getCameraManager();
-        cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        cameraName = hwMap.get(WebcamName.class, "Webcam 1");
 
         initializeFrameQueue(2);
         AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
 
-        try {
-            openCamera();
-            if (camera == null) return;
+        openCamera();
+        if (camera == null) return;
 
-            startCamera();
-            if (cameraCaptureSession == null) return;
+        startCamera();
+        if (cameraCaptureSession == null) return;
 
-            telemetry.addData(">", "Press Play to start");
-            telemetry.update();
-            waitForStart();
-            telemetry.clear();
-            telemetry.addData(">", "Started...Press 'A' to capture frame");
-
-            boolean buttonPressSeen = false;
-            boolean captureWhenAvailable = false;
-            while (opModeIsActive()) {
-
-                boolean buttonIsPressed = gamepad1.a;
-                if (buttonIsPressed && !buttonPressSeen) {
-                    captureWhenAvailable = true;
-                }
-                buttonPressSeen = buttonIsPressed;
-
-                if (captureWhenAvailable) {
-                    Bitmap bmp = frameQueue.poll();
-                    if (bmp != null) {
-                        captureWhenAvailable = false;
-                        // 640x480 Resolution.
-                        // Approx. 192, 121, 79 Ring Color.
-                        // Approx. 135, 140, 139 Floor Color.
-                        int[] pixels = new int[640 * 480];
-                        bmp.getPixels(pixels, 0, 640, 0, 0, 640, 480);
-                        telemetry.addData("Pixel 0,0,R: ", (bmp.getPixel(320, 240) >> 16) & 0xff);
-                        telemetry.addData("Pixel 0,0,G: ", (bmp.getPixel(320, 240) >> 8) & 0xff);
-                        telemetry.addData("Pixel 0,0,B: ", (bmp.getPixel(320, 240)) & 0xff);
-                        telemetry.addData("Scan Output: ", scan(bmp));
-                        onNewFrame(bmp);
-
-                        int maxWidth = 0;
-                        int width = 0;
-                        boolean prev = false;
-                        int i = 0;
-                        while (i < 480 * 640) {
-
-                            // First check if new row
-                            // If so, pretend like last pixel did not meet criteria
-                            if (i % 640 == 0) {
-                                prev = false;
-                                if (maxWidth < width) {
-                                    maxWidth = width;
-                                }
-                            }
-
-                            if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
-                                    ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
-                                if (prev) {
-                                    width += 1;
-                                } else {
-                                    width = 1;
-                                }
-                                prev = true;
-                            } else {
-                                prev = false;
-                                if (maxWidth < width) {
-                                    maxWidth = width;
-                                }
-                            }
-                            i += 1;
-                        }
-
-                        int maxHeight = 0;
-                        int height = 0;
-                        prev = false;
-                        i = 640;
-                        while (i != 0) {
-
-                            // First check if new column
-                            // If so, pretend like last pixel did not meet criteria
-                            if (i < 640) {
-                                prev = false;
-                                if (maxHeight < height) {
-                                    maxHeight = height;
-                                }
-                            }
-
-                            if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
-                                    ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
-                                if (prev) {
-                                    height += 1;
-                                } else {
-                                    height = 1;
-                                }
-                                prev = true;
-                            } else {
-                                if (maxHeight < height) {
-                                    maxHeight = height;
-                                }
-                            }
-                            i = (i + 640) % (480 * 640 - 1);
-                        }
-
-                        telemetry.addData("Max Width: ", maxWidth);
-                        telemetry.addData("Max Height: ", maxHeight);
-                    }
-                }
-
-                telemetry.update();
-            }
-        } finally {
-            closeCamera();
-        }
     }
+
+    public int recognize(boolean control) {
+
+        if (control && !buttonPressSeen) {
+            captureWhenAvailable = true;
+        }
+        buttonPressSeen = control;
+
+        if (captureWhenAvailable) {
+            Bitmap bmp = frameQueue.poll();
+            if (bmp != null) {
+                captureWhenAvailable = false;
+                // 640x480 Resolution.
+                // Approx. 192, 121, 79 Ring Color.
+                // Approx. 135, 140, 139 Floor Color.
+                int[] pixels = new int[640 * 480];
+                bmp.getPixels(pixels, 0, 640, 0, 0, 640, 480);
+                telemetry.addData("Pixel 0,0,R: ", (bmp.getPixel(320, 240) >> 16) & 0xff);
+                telemetry.addData("Pixel 0,0,G: ", (bmp.getPixel(320, 240) >> 8) & 0xff);
+                telemetry.addData("Pixel 0,0,B: ", (bmp.getPixel(320, 240)) & 0xff);
+                telemetry.addData("Scan Output: ", scan(bmp));
+                onNewFrame(bmp);
+
+                int maxWidth = 0;
+                int width = 0;
+                boolean prev = false;
+                int i = 0;
+                while (i < 480 * 640) {
+
+                    // First check if new row
+                    // If so, pretend like last pixel did not meet criteria
+                    if (i % 640 == 0) {
+                        prev = false;
+                        if (maxWidth < width) {
+                            maxWidth = width;
+                        }
+                    }
+
+                    if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
+                            ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
+                        if (prev) {
+                            width += 1;
+                        } else {
+                            width = 1;
+                        }
+                        prev = true;
+                    } else {
+                        prev = false;
+                        if (maxWidth < width) {
+                            maxWidth = width;
+                        }
+                    }
+                    i += 1;
+                }
+
+                int maxHeight = 0;
+                int height = 0;
+                prev = false;
+                i = 640;
+                while (i != 0) {
+
+                    // First check if new column
+                    // If so, pretend like last pixel did not meet criteria
+                    if (i < 640) {
+                        prev = false;
+                        if (maxHeight < height) {
+                            maxHeight = height;
+                        }
+                    }
+
+                    if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
+                            ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
+                        if (prev) {
+                            height += 1;
+                        } else {
+                            height = 1;
+                        }
+                        prev = true;
+                    } else {
+                        if (maxHeight < height) {
+                            maxHeight = height;
+                        }
+                    }
+                    i = (i + 640) % (480 * 640 - 1);
+                }
+
+                numRings = (int) Math.round((float) maxHeight / maxWidth * 5 / 0.75);
+
+                telemetry.addData("Max Width: ", maxWidth);
+                telemetry.addData("Max Height: ", maxHeight);
+                telemetry.addData("Number of Rings: ", numRings);
+
+            }
+        }
+
+        telemetry.update();
+
+        return numRings;
+    }
+
 
     private int scan(Bitmap frame) {
         List<Integer> lengths = new ArrayList<>();
@@ -262,10 +215,6 @@ public class Vision extends LinearOpMode {
         saveBitmap(frame);
         frame.recycle(); // not strictly necessary, but helpful
     }
-
-    //----------------------------------------------------------------------------------------------
-    // Camera operations
-    //----------------------------------------------------------------------------------------------
 
     private void initializeFrameQueue(int capacity) {
         /** The frame queue will automatically throw away bitmap frames if they are not processed
@@ -354,7 +303,6 @@ public class Vision extends LinearOpMode {
             Thread.currentThread().interrupt();
         }
 
-        /** Retrieve the created session. This will be null on error. */
         cameraCaptureSession = synchronizer.getValue();
     }
 

@@ -17,7 +17,7 @@ public class Shooter {
         robot.flappyFlap.setPosition(0.05);
     }
 
-    public void shoot(double shootiness, boolean flapRaise, boolean flapLower, boolean hopUp, boolean hopDown, boolean poke) {
+    public void shoot(double shootiness, boolean flapRaise, boolean flapLower, boolean hopUp, boolean hopDown, boolean poke, boolean flapAutoPower, boolean flapAutoGoal) {
         robot.shooter0.setPower(shootiness);
         robot.shooter1.setPower(shootiness);
 
@@ -37,6 +37,14 @@ public class Shooter {
             poke();
         } else {
             unpoke();
+        }
+
+        if (flapAutoGoal) {
+            goalAim();
+        }
+
+        if (flapAutoPower) {
+            powerShotAim();
         }
 
         telemetry.addData("Shooter Power: ", robot.shooter0.getPower());
@@ -61,19 +69,25 @@ public class Shooter {
 
     public void flapRaise() {
         if (flapPos < 0.3) {
-            flapPos += 0.01;
+            flapPos += 0.001;
             robot.flappyFlap.setPosition(flapPos);
         }
     }
 
     public void flapLower() {
         if (flapPos > 0.0) {
-            flapPos -= 0.01;
+            flapPos -= 0.001;
             robot.flappyFlap.setPosition(flapPos);
         }
     }
 
-    public void aimbot() {
+    public void powerShotAim() {
+        flapPos = 0.05;
+        robot.flappyFlap.setPosition(flapPos);
+    }
 
+    public void goalAim() {
+        flapPos = 0.072;
+        robot.flappyFlap.setPosition(flapPos);
     }
 }

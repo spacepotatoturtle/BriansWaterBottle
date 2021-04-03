@@ -10,7 +10,7 @@ public class Drive {
     Hardware robot;
     Telemetry telemetry;
 
-    float kDrive = 0.8f;
+    float kDrive = 0.9f;
     float kForward = 0.5f;
     float kStrafe = 0.8f;
     float kTurn = 0.8f;
