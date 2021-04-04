@@ -20,7 +20,6 @@ public class CombinedTest extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap);
-        wobbler.init();
 
         waitForStart();
 
