@@ -89,14 +89,12 @@ public class Auto extends LinearOpMode {
         shooter.unpoke();
 
         Pose2d startingPose = new Pose2d(9, -39, 0);
-        Pose2d avoidancePose = new Pose2d(9, -72.5, 0);
         Pose2d powerShotPose = new Pose2d(64, -71.5, 0);
         Pose2d powerShotPose2 = new Pose2d(64, -79, 0);
         Pose2d powerShotPose3 = new Pose2d(64, -61, 0);  // Doesn't make sense, but it works
         Pose2d zonePose;
         Pose2d wobblePose = new Pose2d(47, -17, 8 * Math.PI / 48);
         Pose2d wobblePose2 = new Pose2d(41, -20, 8 * Math.PI / 48);
-        Pose2d interPose = new Pose2d(42, -19, 0);
         Pose2d backPose = new Pose2d(16, -39, 0);
         Pose2d goalPose = new Pose2d(39, -39, -Math.PI / 21);
         Pose2d collectPose = new Pose2d(56, -39, -Math.PI / 21);
@@ -120,7 +118,7 @@ public class Auto extends LinearOpMode {
             zonePose = new Pose2d(105, -61, 3 * Math.PI / 2);
             zonePose2 = new Pose2d(97, -37, 3 * Math.PI / 2);
         } else {
-            zonePose = new Pose2d(124, -37, 3 * Math.PI / 2);  // 129
+            zonePose = new Pose2d(124, -37, 3 * Math.PI / 2);
             zonePose2 = new Pose2d(121, -37, 3 * Math.PI / 2);
         }
 
@@ -139,15 +137,10 @@ public class Auto extends LinearOpMode {
         // Shooty shooty interval 7.5 inches
 
         Trajectory toZone0 = drive.trajectoryBuilder(powerShotPose3)
-//                .addTemporalMarker(0, () -> wobbler.armDownButNotAllTheWay())
                 .splineToLinearHeading(zonePose, -zonePose.getHeading())
                 .build();
 
         // Intake like crazy now
-
-//        Trajectory toWobble = drive.trajectoryBuilder(zonePose)
-//                .strafeTo(new Vector2d(wobblePose.getX(), wobblePose.getY()))
-//                .build();
 
         Trajectory toWobble = drive.trajectoryBuilder(zonePose)
                 .splineToLinearHeading(wobblePose, -Math.PI)
@@ -157,11 +150,7 @@ public class Auto extends LinearOpMode {
                 .strafeTo(new Vector2d(wobblePose2.getX(), wobblePose2.getY()))
                 .build();
 
-        Trajectory toBack = drive.trajectoryBuilder(interPose)
-                .strafeTo(backPose.vec())
-                .build();
-
-        Trajectory toBackDirect = drive.trajectoryBuilder(wobblePose2)
+        Trajectory toBack = drive.trajectoryBuilder(wobblePose2)
                 .splineToLinearHeading(backPose, -Math.PI)
                 .build();
 
@@ -211,6 +200,7 @@ public class Auto extends LinearOpMode {
         drive.followTrajectory(toZone0);
         drive.update();
         slowWobble(robot, 0.12, 0.85);
+//        wobbler.armDownButNotAllTheWay();
         sleep(100);
         wobbler.open();
         slowWobble(robot, 0.55, 0.65);
@@ -219,23 +209,18 @@ public class Auto extends LinearOpMode {
         // Pick up second Wobble
         drive.followTrajectory(toWobble);
         drive.update();
-//        drive.turn(2 * Math.PI + wobblePose.getHeading() - zonePose.getHeading());
-//        drive.update();
         slowWobble(robot, 0.1, 0.6);
 //        wobbler.armDown();
-//        sleep(1500);
         drive.followTrajectory(toWobble2);
         drive.update();
         wobbler.close();
         sleep(250);
 //        wobbler.initWithoutClose();
         slowWobble(robot, 0.55, 0.85);
-//        sleep(1500);
 
         // Collect and shoot at goal
-//        drive.turn(backPose.getHeading() - wobblePose2.getHeading());
 //        drive.followTrajectory(toBack);
-        drive.followTrajectory(toBackDirect);
+        drive.followTrajectory(toBack);
         drive.update();
         shooter.hopperDown();
 
@@ -299,8 +284,7 @@ public class Auto extends LinearOpMode {
         drive.followTrajectory(toZone1);
         drive.update();
 //        wobbler.armDownButNotAllTheWay();
-        slowWobble(robot, 0.12, 0.9);
-//        sleep(1500);
+        slowWobble(robot, 0.12, 0.85);
         sleep(100);
         wobbler.open();
         sleep(250);
