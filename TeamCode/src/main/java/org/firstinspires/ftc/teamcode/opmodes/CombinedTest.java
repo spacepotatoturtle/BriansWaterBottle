@@ -35,5 +35,4 @@ public class CombinedTest extends LinearOpMode {
             sleep(25);
         }
     }
-
 }

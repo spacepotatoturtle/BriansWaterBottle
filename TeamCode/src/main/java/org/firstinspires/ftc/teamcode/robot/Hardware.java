@@ -93,7 +93,7 @@ public class Hardware {
         wobbleArm2.setDirection(Servo.Direction.REVERSE);
         wobbleArm4.setDirection(Servo.Direction.REVERSE);
 
-        wobbleClawLeft.setPosition(0);
+        wobbleClawLeft.setPosition(0.23);
         wobbleClawRight.setPosition(0.85);
         flappyFlap.setPosition(0.255);
         wobbleArm1.setPosition(0.52);

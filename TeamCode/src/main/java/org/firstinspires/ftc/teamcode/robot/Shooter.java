@@ -86,12 +86,27 @@ public class Shooter {
     }
 
     public void powerShotAim() {
-        flapPos = 0.035;
+        flapPos = 0.032;  // 0.035 for ~12.8 V
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void goalAim() {
         flapPos = 0.072;
         robot.flappyFlap.setPosition(flapPos);
+    }
+
+    public void farGoalAim() {
+        flapPos = 0.068;
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
+    public void pidRev(double vel) {
+        double dt = 0.005;
+        int temp = robot.shooter0.getCurrentPosition();
+
+        double actualVel = 0.0;
+        while (actualVel < vel) {
+
+        }
     }
 }

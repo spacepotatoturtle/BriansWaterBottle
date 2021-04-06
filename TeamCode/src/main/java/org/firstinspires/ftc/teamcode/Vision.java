@@ -173,7 +173,7 @@ public class Vision extends LinearOpMode {
                                 }
                             }
 
-                            if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
+                            if (((pixels[i] >> 16) & 0xff) > 1.3 * ((pixels[i] >> 8) & 0xff) &&
                                     ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
                                 if (prev) {
                                     width += 1;
@@ -205,7 +205,7 @@ public class Vision extends LinearOpMode {
                                 }
                             }
 
-                            if (((pixels[i] >> 16) & 0xff) > 1.1 * ((pixels[i] >> 8) & 0xff) &&
+                            if (((pixels[i] >> 16) & 0xff) > 1.3 * ((pixels[i] >> 8) & 0xff) &&
                                     ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
                                 if (prev) {
                                     height += 1;
@@ -223,6 +223,18 @@ public class Vision extends LinearOpMode {
 
                         telemetry.addData("Max Width: ", maxWidth);
                         telemetry.addData("Max Height: ", maxHeight);
+
+                        double ratio = (double) maxHeight / maxWidth * 5 / 0.75;
+
+                        if (maxWidth > 80) {
+                            if (ratio > 4) {
+                                telemetry.addData("Num of rings: ", 4);
+                            } else {
+                                telemetry.addData("Num of rings: ", 1);
+                            }
+                        } else {
+                            telemetry.addData("Num of rings: ", 0);
+                        }
                     }
                 }
 

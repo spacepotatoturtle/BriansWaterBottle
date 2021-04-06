@@ -10,7 +10,7 @@ public class Wobbler {
     Telemetry telemetry;
 
     boolean toggleWasPressed;
-    boolean isClosed;
+    boolean isOpen;
 
     public Wobbler(Hardware hardware, Telemetry telemetryInstance) {
         robot = hardware;
@@ -25,10 +25,17 @@ public class Wobbler {
     }
 
     public void armDown() {
-        robot.wobbleArm1.setPosition(0.07);
-        robot.wobbleArm2.setPosition(0.07);
-        robot.wobbleArm3.setPosition(0.07);
-        robot.wobbleArm4.setPosition(0.07);
+        robot.wobbleArm1.setPosition(0.1);
+        robot.wobbleArm2.setPosition(0.1);
+        robot.wobbleArm3.setPosition(0.1);
+        robot.wobbleArm4.setPosition(0.1);
+    }
+
+    public void armDownButNotAllTheWay() {
+        robot.wobbleArm1.setPosition(0.12);
+        robot.wobbleArm2.setPosition(0.12);
+        robot.wobbleArm3.setPosition(0.12);
+        robot.wobbleArm4.setPosition(0.12);
     }
 
     public void overWall() {
@@ -38,13 +45,20 @@ public class Wobbler {
         robot.wobbleArm4.setPosition(0.22);
     }
 
+    public void initWithoutClose() {
+        robot.wobbleArm1.setPosition(0.55);
+        robot.wobbleArm2.setPosition(0.55);
+        robot.wobbleArm3.setPosition(0.55);
+        robot.wobbleArm4.setPosition(0.55);
+    }
+
     public void init() {
         robot.wobbleArm1.setPosition(0.55);
         robot.wobbleArm2.setPosition(0.55);
         robot.wobbleArm3.setPosition(0.55);
         robot.wobbleArm4.setPosition(0.55);
         close();
-        isClosed = false;
+        isOpen = false;
     }
 
     public double getArmPosition() {
@@ -52,22 +66,22 @@ public class Wobbler {
     }
 
     public void close() {
-        robot.wobbleClawLeft.setPosition(0.72);
-        robot.wobbleClawRight.setPosition(0.16);
-        isClosed = false;
+        robot.wobbleClawLeft.setPosition(0.9);
+        robot.wobbleClawRight.setPosition(0.18);
+        isOpen = false;
     }
 
     public void open() {
-        robot.wobbleClawLeft.setPosition(0.46);
-        robot.wobbleClawRight.setPosition(0.44);
-        isClosed = true;
+        robot.wobbleClawLeft.setPosition(0.62);
+        robot.wobbleClawRight.setPosition(0.48);
+        isOpen = true;
     }
 
     public void wobble(boolean toggleClaw, boolean armRaise, boolean armLower, boolean armInit, boolean armDown, boolean armOverWall) { // The called method.
 
         if (toggleClaw) {
             if (!toggleWasPressed) {
-                if (isClosed) {
+                if (isOpen) {
                     close();
                 } else {
                     open();
