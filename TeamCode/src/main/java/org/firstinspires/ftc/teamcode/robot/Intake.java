@@ -61,6 +61,11 @@ public class Intake {
         robot.intakeRight.setPower(0);
     }
 
+    public void intakeSpeed(double speedy) {
+        robot.intakeLeft.setPower(-speedy);
+        robot.intakeRight.setPower(-speedy);
+    }
+
     public void speedUp() {
         speed = 1.0;
         isSlow = false;

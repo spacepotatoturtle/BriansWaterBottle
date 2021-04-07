@@ -25,10 +25,10 @@ public class Wobbler {
     }
 
     public void armDown() {
-        robot.wobbleArm1.setPosition(0.1);
-        robot.wobbleArm2.setPosition(0.1);
-        robot.wobbleArm3.setPosition(0.1);
-        robot.wobbleArm4.setPosition(0.1);
+        robot.wobbleArm1.setPosition(0.14);
+        robot.wobbleArm2.setPosition(0.14);
+        robot.wobbleArm3.setPosition(0.14);
+        robot.wobbleArm4.setPosition(0.14);
     }
 
     public void armDownButNotAllTheWay() {
@@ -93,17 +93,17 @@ public class Wobbler {
         }
 
         if (armRaise) {
-            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() + 0.01);
-            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() + 0.01);
-            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() + 0.01);
-            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() + 0.01);
+            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() + 0.015);
+            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() + 0.015);
+            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() + 0.015);
+            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() + 0.015);
         }
 
-        if (armLower) {
-            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() - 0.01);
-            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() - 0.01);
-            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() - 0.01);
-            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() - 0.01);
+        if (armLower && robot.wobbleArm1.getPosition() > 0.1) {
+            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() - 0.015);
+            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() - 0.015);
+            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() - 0.015);
+            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() - 0.015);
         }
 
         if (armInit) {

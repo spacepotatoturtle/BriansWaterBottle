@@ -100,13 +100,17 @@ public class Shooter {
         robot.flappyFlap.setPosition(flapPos);
     }
 
+    public void longShot() {
+        flapPos = 0.061;  // Works for full battery
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
+    public void longerShot() {
+        flapPos = 0.056;
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
     public void pidRev(double vel) {
-        double dt = 0.005;
-        int temp = robot.shooter0.getCurrentPosition();
 
-        double actualVel = 0.0;
-        while (actualVel < vel) {
-
-        }
     }
 }
