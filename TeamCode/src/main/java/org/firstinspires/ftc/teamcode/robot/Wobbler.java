@@ -25,10 +25,10 @@ public class Wobbler {
     }
 
     public void armDown() {
-        robot.wobbleArm1.setPosition(0.14);
-        robot.wobbleArm2.setPosition(0.14);
-        robot.wobbleArm3.setPosition(0.14);
-        robot.wobbleArm4.setPosition(0.14);
+        robot.wobbleArm1.setPosition(0.13);
+        robot.wobbleArm2.setPosition(0.13);
+        robot.wobbleArm3.setPosition(0.13);
+        robot.wobbleArm4.setPosition(0.13);
     }
 
     public void armDownButNotAllTheWay() {

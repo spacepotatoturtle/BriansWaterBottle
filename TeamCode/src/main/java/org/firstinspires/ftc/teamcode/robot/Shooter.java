@@ -86,27 +86,27 @@ public class Shooter {
     }
 
     public void powerShotAim() {
-        flapPos = 0.032;  // 0.035 for ~12.8 V
+        flapPos = 0.030;  // 0.035 for ~12.8 V
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void goalAim() {
-        flapPos = 0.072;
+        flapPos = 0.048;  // Fragile
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void farGoalAim() {
-        flapPos = 0.068;
+        flapPos = 0.048;
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void longShot() {
-        flapPos = 0.061;  // Works for full battery
+        flapPos = 0.045;  // Works for full battery
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void longerShot() {
-        flapPos = 0.056;
+        flapPos = 0.043;
         robot.flappyFlap.setPosition(flapPos);
     }
 

@@ -20,6 +20,7 @@ public class CombinedTest extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap);
+        shooter.goalAim();
 
         waitForStart();
 

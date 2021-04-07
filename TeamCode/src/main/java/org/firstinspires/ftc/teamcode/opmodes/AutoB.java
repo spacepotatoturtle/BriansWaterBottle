@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.android.util.Size;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraFrame;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraManager;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.collections.EvictingBlockingQueue;
+import org.firstinspires.ftc.robotcore.internal.network.CallbackLooper;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.internal.system.ContinuationSynchronizer;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
@@ -95,29 +97,140 @@ public class AutoB extends LinearOpMode {
         Pose2d shootingPose3 = new Pose2d(56, -34, -9 * Math.PI / 180);
         Pose2d zonePose;
         Pose2d wobblePose = new Pose2d(47, -17, 8 * Math.PI / 48);
-        Pose2d wobblePose2 = new Pose2d(40, -20, 8 * Math.PI / 48);
-        Pose2d backPose = new Pose2d(16, -39, 0);
-        Pose2d goalPose = new Pose2d(39, -39, -Math.PI / 21);
-        Pose2d collectPose = new Pose2d(56, -39, -Math.PI / 21);
+        Pose2d wobblePose2 = new Pose2d(41, -22, 8 * Math.PI / 48);
         Pose2d zonePose2;
         Pose2d parkPose = new Pose2d(84, -36, 0);
 
         drive.setPoseEstimate(startingPose);
 
+        callbackHandler = CallbackLooper.getDefault().getHandler();
+
+        cameraManager = ClassFactory.getInstance().getCameraManager();
+        cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        initializeFrameQueue(2);
+        AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
+
+        openCamera();
+        if (camera == null) return;
+
+        startCamera();
+        if (cameraCaptureSession == null) return;
+
         waitForStart();
+
+        int numRings = 0;
+
+        Bitmap bmp = frameQueue.poll();
+        if (bmp != null) {
+            // 640x480 Resolution.
+            // Approx. 192, 121, 79 Ring Color.
+            // Approx. 135, 140, 139 Floor Color.
+            int[] pixels = new int[640 * 480];
+            bmp.getPixels(pixels, 0, 640, 0, 0, 640, 480);
+            telemetry.addData("Pixel 0,0,R: ", (bmp.getPixel(320, 240) >> 16) & 0xff);
+            telemetry.addData("Pixel 0,0,G: ", (bmp.getPixel(320, 240) >> 8) & 0xff);
+            telemetry.addData("Pixel 0,0,B: ", (bmp.getPixel(320, 240)) & 0xff);
+            telemetry.addData("Scan Output: ", scan(bmp));
+            onNewFrame(bmp);
+
+            int maxWidth = 0;
+            int width = 0;
+            boolean prev = false;
+            int i = 0;
+            while (i < 480 * 640) {
+
+                // First check if new row
+                // If so, pretend like last pixel did not meet criteria
+                if (i % 640 == 0) {
+                    prev = false;
+                    if (maxWidth < width) {
+                        maxWidth = width;
+                    }
+                }
+
+                if (((pixels[i] >> 16) & 0xff) > 1.3 * ((pixels[i] >> 8) & 0xff) &&
+                        ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
+                    if (prev) {
+                        width += 1;
+                    } else {
+                        width = 1;
+                    }
+                    prev = true;
+                } else {
+                    prev = false;
+                    if (maxWidth < width) {
+                        maxWidth = width;
+                    }
+                }
+                i += 1;
+            }
+
+            int maxHeight = 0;
+            int height = 0;
+            prev = false;
+            i = 640;
+            while (i != 0) {
+
+                // First check if new column
+                // If so, pretend like last pixel did not meet criteria
+                if (i < 640) {
+                    prev = false;
+                    if (maxHeight < height) {
+                        maxHeight = height;
+                    }
+                }
+
+                if (((pixels[i] >> 16) & 0xff) > 1.3 * ((pixels[i] >> 8) & 0xff) &&
+                        ((pixels[i] >> 8) & 0xff) > 1.3 * (pixels[i] & 0xff)) {
+                    if (prev) {
+                        height += 1;
+                    } else {
+                        height = 1;
+                    }
+                    prev = true;
+                } else {
+                    if (maxHeight < height) {
+                        maxHeight = height;
+                    }
+                }
+                i = (i + 640) % (480 * 640 - 1);
+            }
+
+            telemetry.addData("Max Width: ", maxWidth);
+            telemetry.addData("Max Height: ", maxHeight);
+
+            double ratio = (double) maxHeight / maxWidth * 5 / 0.75;
+
+            if (maxWidth > 80) {
+                if (ratio > 4) {
+                    telemetry.addData("Num of rings: ", 4);
+                    numRings = 4;
+                } else {
+                    telemetry.addData("Num of rings: ", 1);
+                    numRings = 1;
+                }
+            } else {
+                telemetry.addData("Num of rings: ", 0);
+                numRings = 0;
+            }
+        }
+
+        closeCamera();
+
+        telemetry.update();
 
         wobbler.close();
         shooter.powerShotAim();
 
         if (isStopRequested()) return;
 
-        int numRings = 4;
         if (numRings == 0) {
             zonePose = new Pose2d(81, -37, 3 * Math.PI / 2);
             zonePose2 = new Pose2d(73, -37, 3 * Math.PI / 2);
         } else if (numRings == 1) {
-            zonePose = new Pose2d(105, -61, 3 * Math.PI / 2);
-            zonePose2 = new Pose2d(97, -37, 3 * Math.PI / 2);
+            zonePose = new Pose2d(102, -59, 3 * Math.PI / 2);
+            zonePose2 = new Pose2d(92, -59, 3 * Math.PI / 2);
         } else {
             zonePose = new Pose2d(124, -35, 3 * Math.PI / 2);
             zonePose2 = new Pose2d(114, -35, 3 * Math.PI / 2);
@@ -168,35 +281,39 @@ public class AutoB extends LinearOpMode {
             sleep(250);
             shooter.unpoke();
         }
-        shooter.longShot();
-        intake.intakeSpeed(0.8);
-        shooter.hopperDown();
+        if (numRings > 0) {
+            shooter.longShot();
+            intake.intakeSpeed(0.8);
+            shooter.hopperDown();
+        }
         drive.followTrajectory(toShooterSpot2);
         drive.update();
-        sleep(500);
-        shooter.hopperUp();
-        sleep(500);
-        for (int i = 0; i < 2; i++) {
+        if (numRings > 0) {
+            sleep(650);
             shooter.hopperUp();
-            sleep(250);
-            shooter.poke();
-            sleep(250);
-            shooter.unpoke();
+            sleep(300);
+            for (int i = 0; i < 2; i++) {
+                shooter.hopperUp();
+                sleep(250);
+                shooter.poke();
+                sleep(250);
+                shooter.unpoke();
+            }
+            shooter.hopperDown();
         }
-
-        shooter.hopperDown();
         drive.followTrajectory(toShooterSpot3);
         drive.update();
-        sleep(500);
-        shooter.hopperUp();
-        sleep(500);
-        for (int i = 0; i < 2; i++) {
-            sleep(250);
-            shooter.poke();
-            sleep(250);
-            shooter.unpoke();
+        if (numRings > 1) {
+            sleep(650);
+            shooter.hopperUp();
+            sleep(300);
+            for (int i = 0; i < 2; i++) {
+                sleep(250);
+                shooter.poke();
+                sleep(250);
+                shooter.unpoke();
+            }
         }
-
 
         shooter.rev(0);
         intake.fullStop();
@@ -214,12 +331,12 @@ public class AutoB extends LinearOpMode {
         // Pick up second Wobble
         drive.followTrajectory(toWobble);
         drive.update();
-        slowWobble(robot, 0.14, 0.6);
+        slowWobble(robot, 0.13, 0.6);
 //        wobbler.armDown();
         drive.followTrajectory(toWobble2);
         drive.update();
         wobbler.close();
-        sleep(250);
+        sleep(350);
 //        wobbler.initWithoutClose();
         slowWobble(robot, 0.55, 0.85);
 
