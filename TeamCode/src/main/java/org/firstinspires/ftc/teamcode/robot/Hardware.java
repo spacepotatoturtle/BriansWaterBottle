@@ -63,6 +63,12 @@ public class Hardware {
         shooter0 = hwMap.get(DcMotor.class, "shooter0");
         shooter1 = hwMap.get(DcMotor.class, "shooter1");
 
+        shooter0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        shooter0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         spin = hwMap.get(Servo.class, "spin");
         lift1 = hwMap.get(Servo.class, "lift1");
         lift2 = hwMap.get(Servo.class, "lift2");

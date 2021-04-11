@@ -46,11 +46,16 @@ public class Shooter {
             powerShotAim();
         }
 
-        telemetry.addData("Shooter Power: ", robot.shooter0.getPower());
+        telemetry.addData("Shooter Power: ", robot.shooter1.getPower());
+//        telemetry.addData("Shooter Vel: ", robot.shooter1.getVelocity());
+        telemetry.addData("Shooter Pos: ", robot.shooter0.getCurrentPosition());
+        telemetry.addData("Shooter Pos: ", robot.shooter1.getCurrentPosition());
         telemetry.addData("Flap Position: ", robot.flappyFlap.getPosition());
     }
 
     public void rev(double speed) {
+//        robot.shooter0.setVelocity(speed * 100);
+//        robot.shooter1.setVelocity(speed * 100);
         robot.shooter0.setPower(speed);
         robot.shooter1.setPower(speed);
     }
