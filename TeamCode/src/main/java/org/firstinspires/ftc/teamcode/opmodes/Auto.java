@@ -298,6 +298,7 @@ public class Auto extends LinearOpMode {
     }
 
     public void slowWobble(Hardware robot, double position, double time) {
+        /*
         double inc = (position - robot.wobbleArm1.getPosition()) / time * 0.025;
         double t = 0;
         while (t < time) {
@@ -308,6 +309,8 @@ public class Auto extends LinearOpMode {
             t += 0.025;
             sleep(25);
         }
+
+         */
     }
 
     private int scan(Bitmap frame) {

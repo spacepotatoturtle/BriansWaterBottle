@@ -19,10 +19,9 @@ public class Hardware {
 
     public Servo wobbleClawLeft = null;
     public Servo wobbleClawRight = null;
-    public Servo wobbleArm1 = null;
-    public Servo wobbleArm2 = null;
-    public Servo wobbleArm3 = null;
-    public Servo wobbleArm4 = null;
+    public Servo spin = null;
+    public Servo lift1 = null;
+    public Servo lift2 = null;
 
     public Encoder leftEncoder = null;
     public Encoder rightEncoder = null;
@@ -53,9 +52,10 @@ public class Hardware {
         backLeftDrive = hwMap.get(DcMotor.class, "leftRear");  //back/front odometry encoder
         backRightDrive = hwMap.get(DcMotor.class, "rightRear");
 
+        // None of these are actually used
         leftEncoder = new Encoder(hwMap.get(DcMotorEx.class, "intakeLeft"));
         rightEncoder = new Encoder(hwMap.get(DcMotorEx.class, "intakeRight"));
-        frontEncoder = new Encoder(hwMap.get(DcMotorEx.class, "shooter0"));
+        frontEncoder = new Encoder(hwMap.get(DcMotorEx.class, "leftFront"));
 
         intakeLeft = hwMap.get(DcMotor.class, "intakeLeft");
         intakeRight = hwMap.get(DcMotor.class, "intakeRight");
@@ -63,11 +63,9 @@ public class Hardware {
         shooter0 = hwMap.get(DcMotor.class, "shooter0");
         shooter1 = hwMap.get(DcMotor.class, "shooter1");
 
-        // 1-4, front-back
-        wobbleArm1 = hwMap.get(Servo.class, "arm1");
-        wobbleArm2 = hwMap.get(Servo.class, "arm2");
-        wobbleArm3 = hwMap.get(Servo.class, "arm3");
-        wobbleArm4 = hwMap.get(Servo.class, "arm4");
+        spin = hwMap.get(Servo.class, "spin");
+        lift1 = hwMap.get(Servo.class, "lift1");
+        lift2 = hwMap.get(Servo.class, "lift2");
 
         wobbleClawLeft = hwMap.get(Servo.class, "clawLeft");
         wobbleClawRight = hwMap.get(Servo.class, "clawRight");
@@ -76,7 +74,7 @@ public class Hardware {
         hopper = hwMap.get(Servo.class, "hopper");
         poker = hwMap.get(Servo.class, "poker");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
+        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -90,15 +88,14 @@ public class Hardware {
 
         shooter1.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        wobbleArm2.setDirection(Servo.Direction.REVERSE);
-        wobbleArm4.setDirection(Servo.Direction.REVERSE);
-
-        wobbleClawLeft.setPosition(0.23);
-        wobbleClawRight.setPosition(0.85);
+//        wobbleClawLeft.setPosition(0.23);
+//        wobbleClawRight.setPosition(0.85);
+        wobbleClawLeft.setPosition(0.9);
+        wobbleClawRight.setPosition(0.18);
         flappyFlap.setPosition(0.255);
-        wobbleArm1.setPosition(0.52);
-        wobbleArm2.setPosition(0.52);
-        wobbleArm3.setPosition(0.52);
-        wobbleArm4.setPosition(0.52);
+        spin.setPosition(0.32);
+        lift1.setPosition(0.25);
+        lift2.setPosition(0.25);
+
     }
 }

@@ -13,56 +13,50 @@ public class Wobbler {
     boolean isOpen;
 
     public Wobbler(Hardware hardware, Telemetry telemetryInstance) {
+        isOpen = false;
         robot = hardware;
         telemetry = telemetryInstance;
     }
 
-    public void zerofy() {
-        robot.wobbleArm1.setPosition(0);
-        robot.wobbleArm2.setPosition(0);
-        robot.wobbleArm3.setPosition(0);
-        robot.wobbleArm4.setPosition(0);
+    public void armRaise() {
+        robot.lift1.setPosition(robot.lift1.getPosition() - 0.01);
+        robot.lift2.setPosition(robot.lift2.getPosition() - 0.01);
+    }
+
+    public void armLower() {
+        robot.lift1.setPosition(robot.lift1.getPosition() + 0.01);
+        robot.lift2.setPosition(robot.lift2.getPosition() + 0.01);
+    }
+
+    public void armLefter() {
+        robot.spin.setPosition(robot.spin.getPosition() - 0.01);
+    }
+
+    public void armRighter() {
+        robot.spin.setPosition(robot.spin.getPosition() + 0.01);
+    }
+
+    public void armSide() {
+        robot.spin.setPosition(0.66);
+    }
+
+    public void armBack() {
+        robot.spin.setPosition(0.32);
     }
 
     public void armDown() {
-        robot.wobbleArm1.setPosition(0.13);
-        robot.wobbleArm2.setPosition(0.13);
-        robot.wobbleArm3.setPosition(0.13);
-        robot.wobbleArm4.setPosition(0.13);
+        robot.lift1.setPosition(0.95);
+        robot.lift2.setPosition(0.95);
     }
 
-    public void armDownButNotAllTheWay() {
-        robot.wobbleArm1.setPosition(0.12);
-        robot.wobbleArm2.setPosition(0.12);
-        robot.wobbleArm3.setPosition(0.12);
-        robot.wobbleArm4.setPosition(0.12);
+    public void armUp() {
+        robot.lift1.setPosition(0.85);
+        robot.lift2.setPosition(0.85);
     }
 
-    public void overWall() {
-        robot.wobbleArm1.setPosition(0.22);
-        robot.wobbleArm2.setPosition(0.22);
-        robot.wobbleArm3.setPosition(0.22);
-        robot.wobbleArm4.setPosition(0.22);
-    }
-
-    public void initWithoutClose() {
-        robot.wobbleArm1.setPosition(0.55);
-        robot.wobbleArm2.setPosition(0.55);
-        robot.wobbleArm3.setPosition(0.55);
-        robot.wobbleArm4.setPosition(0.55);
-    }
-
-    public void init() {
-        robot.wobbleArm1.setPosition(0.55);
-        robot.wobbleArm2.setPosition(0.55);
-        robot.wobbleArm3.setPosition(0.55);
-        robot.wobbleArm4.setPosition(0.55);
-        close();
-        isOpen = false;
-    }
-
-    public double getArmPosition() {
-        return robot.wobbleArm1.getPosition();
+    public void armVertical() {
+        robot.lift1.setPosition(0.5);
+        robot.lift2.setPosition(0.5);
     }
 
     public void close() {
@@ -77,7 +71,7 @@ public class Wobbler {
         isOpen = true;
     }
 
-    public void wobble(boolean toggleClaw, boolean armRaise, boolean armLower, boolean armInit, boolean armDown, boolean armOverWall) { // The called method.
+    public void wobble(boolean toggleClaw, boolean armVertical, boolean armUp, boolean armDown, boolean armSide, boolean armBack) {
 
         if (toggleClaw) {
             if (!toggleWasPressed) {
@@ -92,36 +86,30 @@ public class Wobbler {
             toggleWasPressed = false;
         }
 
-        if (armRaise) {
-            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() + 0.015);
-            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() + 0.015);
-            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() + 0.015);
-            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() + 0.015);
+        if (armVertical) {
+            armVertical();
         }
 
-        if (armLower && robot.wobbleArm1.getPosition() > 0.1) {
-            robot.wobbleArm1.setPosition(robot.wobbleArm1.getPosition() - 0.015);
-            robot.wobbleArm2.setPosition(robot.wobbleArm2.getPosition() - 0.015);
-            robot.wobbleArm3.setPosition(robot.wobbleArm3.getPosition() - 0.015);
-            robot.wobbleArm4.setPosition(robot.wobbleArm4.getPosition() - 0.015);
-        }
-
-        if (armInit) {
-            init();
+        if (armUp) {
+            armUp();
         }
 
         if (armDown) {
             armDown();
         }
 
-        if (armOverWall) {
-            overWall();
+        if (armSide) {
+            armSide();
         }
 
-        telemetry.addData("Left Claw Pos: ", robot.wobbleClawLeft.getPosition());
-        telemetry.addData("Right Claw Pos: ", robot.wobbleClawRight.getPosition());
-        telemetry.addData("Arm Pos: ", getArmPosition());
-        telemetry.addData("Arm Pos 2: ", robot.wobbleArm2.getPosition());
+        if (armBack) {
+            armBack();
+        }
+
+        //telemetry.addData("Left Claw Pos: ", robot.wobbleClawLeft.getPosition());
+//        telemetry.addData("Right Claw Pos: ", robot.wobbleClawRight.getPosition());
+        telemetry.addData("Arm Phi: ", robot.lift1.getPosition());
+        telemetry.addData("Arm Theta: ", robot.spin.getPosition());
 
     }
 }

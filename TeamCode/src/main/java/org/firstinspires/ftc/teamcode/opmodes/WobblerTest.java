@@ -14,13 +14,12 @@ public class WobblerTest extends LinearOpMode {
     public void runOpMode() {
 
         robot.init(hardwareMap);
-        wobbler.init();
 
         waitForStart();
 
         while(opModeIsActive()) {
 
-            wobbler.wobble(gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_right, gamepad1.a, gamepad1.x);
+            wobbler.wobble(gamepad1.x, gamepad1.a, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_left, gamepad1.dpad_right);
 
             telemetry.update();
 
