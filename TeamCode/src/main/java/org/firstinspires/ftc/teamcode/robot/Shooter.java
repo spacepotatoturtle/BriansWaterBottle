@@ -46,18 +46,14 @@ public class Shooter {
             powerShotAim();
         }
 
-        telemetry.addData("Shooter Power: ", robot.shooter1.getPower());
-//        telemetry.addData("Shooter Vel: ", robot.shooter1.getVelocity());
-        telemetry.addData("Shooter Pos: ", robot.shooter0.getCurrentPosition());
-        telemetry.addData("Shooter Pos: ", robot.shooter1.getCurrentPosition());
+        telemetry.addData("Shooter Power: ", robot.shooter0.getPower());
+        telemetry.addData("Shooter Vel: ", robot.shooter0.getVelocity());
         telemetry.addData("Flap Position: ", robot.flappyFlap.getPosition());
     }
 
     public void rev(double speed) {
-//        robot.shooter0.setVelocity(speed * 100);
-//        robot.shooter1.setVelocity(speed * 100);
-        robot.shooter0.setPower(speed);
-        robot.shooter1.setPower(speed);
+        robot.shooter0.setVelocity(speed * 1750);
+        robot.shooter1.setVelocity(speed * 1750);
     }
 
     public void hopperDown() {
@@ -91,27 +87,28 @@ public class Shooter {
     }
 
     public void powerShotAim() {
-        flapPos = 0.030;  // 0.035 for ~12.8 V
-        robot.flappyFlap.setPosition(flapPos);
-    }
-
-    public void goalAim() {
-        flapPos = 0.048;  // Fragile
-        robot.flappyFlap.setPosition(flapPos);
-    }
-
-    public void farGoalAim() {
         flapPos = 0.048;
         robot.flappyFlap.setPosition(flapPos);
     }
 
+    public void goalAim() {
+        flapPos = 0.066;
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
+    @Deprecated
+    public void farGoalAim() {
+        flapPos = 0.075;
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
     public void longShot() {
-        flapPos = 0.045;  // Works for full battery
+        flapPos = 0.07;
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void longerShot() {
-        flapPos = 0.043;
+        flapPos = 0.069;
         robot.flappyFlap.setPosition(flapPos);
     }
 

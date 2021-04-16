@@ -1,7 +1,16 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
+import java.util.Arrays;
 
 /*
  * Constants shared between multiple drive types.
@@ -71,10 +80,22 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 70;
-    public static double MAX_ACCEL = 40;
+    public static double MAX_VEL = 50;
+    public static double MAX_ACCEL = 30;
     public static double MAX_ANG_VEL = Math.toRadians(90);
     public static double MAX_ANG_ACCEL = Math.toRadians(90);
+
+    public static TrajectoryVelocityConstraint SLOW = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(MAX_ANG_VEL),
+            new MecanumVelocityConstraint(15, TRACK_WIDTH)
+    ));
+
+    public static TrajectoryVelocityConstraint KINDA_SLOW = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(MAX_ANG_VEL),
+            new MecanumVelocityConstraint(40, TRACK_WIDTH)
+    ));
+
+    public static TrajectoryAccelerationConstraint NORM_ACCEL = new ProfileAccelerationConstraint(MAX_ACCEL);
 
 
     public static double encoderTicksToInches(double ticks) {

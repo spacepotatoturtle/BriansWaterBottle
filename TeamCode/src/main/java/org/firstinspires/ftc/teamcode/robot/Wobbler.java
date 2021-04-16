@@ -37,7 +37,7 @@ public class Wobbler {
     }
 
     public void armSide() {
-        robot.spin.setPosition(0.66);
+        robot.spin.setPosition(0.72);
     }
 
     public void armBack() {
@@ -49,7 +49,7 @@ public class Wobbler {
         robot.lift2.setPosition(0.95);
     }
 
-    public void armUp() {
+    public void armMiddle() {
         robot.lift1.setPosition(0.85);
         robot.lift2.setPosition(0.85);
     }
@@ -91,7 +91,7 @@ public class Wobbler {
         }
 
         if (armUp) {
-            armUp();
+            armMiddle();
         }
 
         if (armDown) {

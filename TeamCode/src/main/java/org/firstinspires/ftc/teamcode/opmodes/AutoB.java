@@ -9,8 +9,6 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -33,7 +31,10 @@ import org.firstinspires.ftc.robotcore.internal.network.CallbackLooper;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.internal.system.ContinuationSynchronizer;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.RoadrunnerDrive;
+import org.firstinspires.ftc.teamcode.robot.Blocker;
+import org.firstinspires.ftc.teamcode.robot.Drive;
 import org.firstinspires.ftc.teamcode.robot.Hardware;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Shooter;
@@ -55,6 +56,7 @@ public class AutoB extends LinearOpMode {
     Shooter shooter = new Shooter(robot, telemetry);
     Wobbler wobbler = new Wobbler(robot, telemetry);
     Intake intake = new Intake(robot, telemetry);
+    Blocker blocker = new Blocker(robot, telemetry);
 
     private static final String TAG = "Webcam Sample";
 
@@ -90,16 +92,17 @@ public class AutoB extends LinearOpMode {
         RoadrunnerDrive drive = new RoadrunnerDrive(hardwareMap);
         shooter.hopperUp();
         shooter.unpoke();
+        blocker.autoInit();
 
         Pose2d startingPose = new Pose2d(9, -39, 0);
         Pose2d shootingPose = new Pose2d(35, -38, -9 * Math.PI / 180);
-        Pose2d shootingPose2 = new Pose2d(41, -34, -9 * Math.PI / 180);
-        Pose2d shootingPose3 = new Pose2d(56, -34, -9 * Math.PI / 180);
+        Pose2d shootingPose2 = new Pose2d(46, -35, -9 * Math.PI / 180);
+        Pose2d shootingPose3 = new Pose2d(60, -35, -9 * Math.PI / 180);
         Pose2d zonePose;
-        Pose2d wobblePose = new Pose2d(47, -17, 8 * Math.PI / 48);
-        Pose2d wobblePose2 = new Pose2d(41, -22, 8 * Math.PI / 48);
+        Pose2d wobblePose = new Pose2d(46, -33, 0);  // 43, -19, Math.PI / 6
+        Pose2d wobblePose2 = new Pose2d(35, -33, 0);  // 37, -24, Math.PI / 6
         Pose2d zonePose2;
-        Pose2d parkPose = new Pose2d(84, -36, 0);
+        Pose2d parkPose = new Pose2d(80, -36, 0);
 
         drive.setPoseEstimate(startingPose);
 
@@ -226,36 +229,30 @@ public class AutoB extends LinearOpMode {
         if (isStopRequested()) return;
 
         if (numRings == 0) {
-            zonePose = new Pose2d(81, -37, 3 * Math.PI / 2);
-            zonePose2 = new Pose2d(73, -37, 3 * Math.PI / 2);
+            zonePose = new Pose2d(81, -30, 0);
+            zonePose2 = new Pose2d(63, -12, 3 * Math.PI / 2);
         } else if (numRings == 1) {
-            zonePose = new Pose2d(102, -59, 3 * Math.PI / 2);
-            zonePose2 = new Pose2d(92, -59, 3 * Math.PI / 2);
+            zonePose = new Pose2d(102, -54, 0);
+            zonePose2 = new Pose2d(82, -35, 3 * Math.PI / 2);
         } else {
-            zonePose = new Pose2d(124, -35, 3 * Math.PI / 2);
-            zonePose2 = new Pose2d(114, -35, 3 * Math.PI / 2);
+            zonePose = new Pose2d(124, -30, 0);
+            zonePose2 = new Pose2d(104, -12, 3 * Math.PI / 2);
         }
 
         Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
-                .splineTo(new Vector2d(shootingPose.getX(), shootingPose.getY()), shootingPose.getHeading())
+                .splineTo(new Vector2d(shootingPose.getX(), shootingPose.getY()), shootingPose.getHeading(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toShooterSpot2 = drive.trajectoryBuilder(shootingPose)
-                .strafeTo(new Vector2d(shootingPose2.getX(), shootingPose2.getY()))
+                .strafeTo(new Vector2d(shootingPose2.getX(), shootingPose2.getY()), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toShooterSpot3 = drive.trajectoryBuilder(shootingPose2)
-                .strafeTo(new Vector2d(shootingPose3.getX(), shootingPose3.getY()))
+                .strafeTo(new Vector2d(shootingPose3.getX(), shootingPose3.getY()), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
-
-        // Shooty shooty interval 7.5 inches
 
         Trajectory toZone0 = drive.trajectoryBuilder(shootingPose3)
                 .splineToLinearHeading(zonePose, -zonePose.getHeading())
-                .build();
-
-        Trajectory toWobble = drive.trajectoryBuilder(zonePose)
-                .splineToLinearHeading(wobblePose, -Math.PI)
                 .build();
 
         Trajectory toWobble2 = drive.trajectoryBuilder(wobblePose)
@@ -270,7 +267,8 @@ public class AutoB extends LinearOpMode {
                 .splineToLinearHeading(parkPose, -Math.PI)
                 .build();
 
-        // high shots
+        // High shots
+        wobbler.armVertical();
         shooter.rev(1);
         drive.followTrajectory(toShooterSpot);
         drive.update();
@@ -283,9 +281,10 @@ public class AutoB extends LinearOpMode {
         }
         if (numRings > 0) {
             shooter.longShot();
-            intake.intakeSpeed(0.8);
+            intake.intakeSpeed(1);
             shooter.hopperDown();
         }
+        blocker.vertical();
         drive.followTrajectory(toShooterSpot2);
         drive.update();
         if (numRings > 0) {
@@ -307,7 +306,7 @@ public class AutoB extends LinearOpMode {
             sleep(650);
             shooter.hopperUp();
             sleep(300);
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 3; i++) {
                 sleep(250);
                 shooter.poke();
                 sleep(250);
@@ -319,43 +318,46 @@ public class AutoB extends LinearOpMode {
         intake.fullStop();
 
         // Drop Wobble
+        wobbler.armSide();
+        wobbler.armMiddle();
         drive.followTrajectory(toZone0);
         drive.update();
-        slowWobble(robot, 0.12, 0.85);
-//        wobbler.armDownButNotAllTheWay();
         sleep(100);
         wobbler.open();
-        slowWobble(robot, 0.55, 0.65);
-//        wobbler.initWithoutClose();
+        sleep(100);
+        wobbler.armVertical();
+        wobbler.armBack();
 
         // Pick up second Wobble
+        Trajectory toWobble = drive.trajectoryBuilder(zonePose)
+                .strafeTo(wobblePose.vec())
+                .build();
         drive.followTrajectory(toWobble);
         drive.update();
-        slowWobble(robot, 0.13, 0.6);
-//        wobbler.armDown();
+        wobbler.armDown();
+        sleep(200);
         drive.followTrajectory(toWobble2);
         drive.update();
         wobbler.close();
         sleep(350);
-//        wobbler.initWithoutClose();
-        slowWobble(robot, 0.55, 0.85);
+        wobbler.armVertical();
 
         // Drop second Wobble
         drive.followTrajectory(toZone1);
         drive.update();
-//        wobbler.armDownButNotAllTheWay();
-        slowWobble(robot, 0.12, 0.85);
-        sleep(100);
+        wobbler.armSide();
+        sleep(250);
+        wobbler.armMiddle();
+        sleep(750);
         wobbler.open();
         sleep(250);
 
         // Park
-        slowWobble(robot, 0.55, 0.5);
+        wobbler.armBack();
+        wobbler.armVertical();
         drive.followTrajectory(toPark);
         drive.update();
-        drive.turn(Math.PI / 2);
-        drive.update();
-
+        blocker.block();
 
     }
 

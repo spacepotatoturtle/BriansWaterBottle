@@ -27,12 +27,13 @@ public class Hardware {
     public Encoder rightEncoder = null;
     public Encoder frontEncoder = null;
 
-    public DcMotor shooter0 = null;
-    public DcMotor shooter1 = null;
+    public DcMotorEx shooter0 = null;
+    public DcMotorEx shooter1 = null;
 
     public Servo flappyFlap = null;
     public Servo hopper = null;
     public Servo poker = null;
+    public Servo blocker = null;
 
     HardwareMap hwMap = null;
 
@@ -60,8 +61,8 @@ public class Hardware {
         intakeLeft = hwMap.get(DcMotor.class, "intakeLeft");
         intakeRight = hwMap.get(DcMotor.class, "intakeRight");
 
-        shooter0 = hwMap.get(DcMotor.class, "shooter0");
-        shooter1 = hwMap.get(DcMotor.class, "shooter1");
+        shooter0 = hwMap.get(DcMotorEx.class, "shooter0");
+        shooter1 = hwMap.get(DcMotorEx.class, "shooter1");
 
         shooter0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -79,8 +80,9 @@ public class Hardware {
         flappyFlap = hwMap.get(Servo.class, "flap");
         hopper = hwMap.get(Servo.class, "hopper");
         poker = hwMap.get(Servo.class, "poker");
+        blocker = hwMap.get(Servo.class, "blocker");
 
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);
         backLeftDrive.setDirection(DcMotor.Direction.FORWARD);
         backRightDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -100,8 +102,8 @@ public class Hardware {
         wobbleClawRight.setPosition(0.18);
         flappyFlap.setPosition(0.255);
         spin.setPosition(0.32);
-        lift1.setPosition(0.25);
-        lift2.setPosition(0.25);
+        lift1.setPosition(0.28);
+        lift2.setPosition(0.28);
 
     }
 }
