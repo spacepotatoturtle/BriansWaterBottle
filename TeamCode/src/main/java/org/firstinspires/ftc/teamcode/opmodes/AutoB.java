@@ -99,8 +99,8 @@ public class AutoB extends LinearOpMode {
         Pose2d shootingPose2 = new Pose2d(46, -35, -9 * Math.PI / 180);
         Pose2d shootingPose3 = new Pose2d(60, -35, -9 * Math.PI / 180);
         Pose2d zonePose;
-        Pose2d wobblePose = new Pose2d(46, -33, 0);  // 43, -19, Math.PI / 6
-        Pose2d wobblePose2 = new Pose2d(35, -33, 0);  // 37, -24, Math.PI / 6
+        Pose2d wobblePose = new Pose2d(46, -32, 0);  // 43, -19, Math.PI / 6
+        Pose2d wobblePose2 = new Pose2d(35, -32, 0);  // 37, -24, Math.PI / 6
         Pose2d zonePose2;
         Pose2d parkPose = new Pose2d(80, -36, 0);
 
@@ -240,15 +240,15 @@ public class AutoB extends LinearOpMode {
         }
 
         Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
-                .splineTo(new Vector2d(shootingPose.getX(), shootingPose.getY()), shootingPose.getHeading(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
+                .splineTo(shootingPose.vec(), shootingPose.getHeading(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toShooterSpot2 = drive.trajectoryBuilder(shootingPose)
-                .strafeTo(new Vector2d(shootingPose2.getX(), shootingPose2.getY()), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
+                .strafeTo(shootingPose2.vec(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toShooterSpot3 = drive.trajectoryBuilder(shootingPose2)
-                .strafeTo(new Vector2d(shootingPose3.getX(), shootingPose3.getY()), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
+                .strafeTo(shootingPose3.vec(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toZone0 = drive.trajectoryBuilder(shootingPose3)
@@ -256,7 +256,7 @@ public class AutoB extends LinearOpMode {
                 .build();
 
         Trajectory toWobble2 = drive.trajectoryBuilder(wobblePose)
-                .strafeTo(new Vector2d(wobblePose2.getX(), wobblePose2.getY()))
+                .strafeTo(wobblePose2.vec())
                 .build();
 
         Trajectory toZone1 = drive.trajectoryBuilder(wobblePose2)
@@ -264,7 +264,7 @@ public class AutoB extends LinearOpMode {
                 .build();
 
         Trajectory toPark = drive.trajectoryBuilder(zonePose2)
-                .splineToLinearHeading(parkPose, -Math.PI)
+                .strafeTo(parkPose.vec())
                 .build();
 
         // High shots
@@ -274,7 +274,9 @@ public class AutoB extends LinearOpMode {
         drive.update();
         shooter.longerShot();
         for (int i = 0; i < 3; i++) {
-            sleep(250);
+            while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+                sleep(25);
+            }
             shooter.poke();
             sleep(250);
             shooter.unpoke();
@@ -291,9 +293,11 @@ public class AutoB extends LinearOpMode {
             sleep(650);
             shooter.hopperUp();
             sleep(300);
+            shooter.hopperUp();
             for (int i = 0; i < 2; i++) {
-                shooter.hopperUp();
-                sleep(250);
+                while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+                    sleep(25);
+                }
                 shooter.poke();
                 sleep(250);
                 shooter.unpoke();
@@ -307,7 +311,9 @@ public class AutoB extends LinearOpMode {
             shooter.hopperUp();
             sleep(300);
             for (int i = 0; i < 3; i++) {
-                sleep(250);
+                while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+                    sleep(25);
+                }
                 shooter.poke();
                 sleep(250);
                 shooter.unpoke();
@@ -355,8 +361,21 @@ public class AutoB extends LinearOpMode {
         // Park
         wobbler.armBack();
         wobbler.armVertical();
-        drive.followTrajectory(toPark);
-        drive.update();
+        if (numRings != 0) {
+            drive.followTrajectory(toPark);
+            drive.update();
+        } else {
+            Trajectory toPark0 = drive.trajectoryBuilder(zonePose2)
+                    .strafeTo(new Vector2d(zonePose2.getX(), parkPose.getY()))
+                    .build();
+            Trajectory toPark1 = drive.trajectoryBuilder(new Pose2d(zonePose2.getX(), parkPose.getY(), zonePose2.getHeading()))
+                    .strafeTo(parkPose.vec())
+                    .build();
+            drive.followTrajectory(toPark0);
+            drive.update();
+            drive.followTrajectory(toPark1);
+            drive.update();
+        }
         blocker.block();
 
     }
