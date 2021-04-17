@@ -8,6 +8,8 @@ public class Shooter {
     Telemetry telemetry;
     double flapPos = 0.05;
 
+    public final int shootingRPM = 1750;
+
     public Shooter(Hardware hardware, Telemetry telemetryInstance) {
         robot = hardware;
         telemetry = telemetryInstance;
@@ -32,7 +34,7 @@ public class Shooter {
             hopperDown();
         }
 
-        if (poke) {
+        if (poke && robot.shooter0.getVelocity() > shootingRPM * 0.95) {
             poke();
         } else {
             unpoke();
@@ -52,8 +54,8 @@ public class Shooter {
     }
 
     public void rev(double speed) {
-        robot.shooter0.setVelocity(speed * 1750);
-        robot.shooter1.setVelocity(speed * 1750);
+        robot.shooter0.setVelocity(speed * shootingRPM);
+        robot.shooter1.setVelocity(speed * shootingRPM);
     }
 
     public void hopperDown() {
