@@ -96,8 +96,9 @@ public class AutoB extends LinearOpMode {
 
         Pose2d startingPose = new Pose2d(9, -39, 0);
         Pose2d shootingPose = new Pose2d(35, -38, -9 * Math.PI / 180);
-        Pose2d shootingPose2 = new Pose2d(46, -35, -9 * Math.PI / 180);
-        Pose2d shootingPose3 = new Pose2d(60, -35, -9 * Math.PI / 180);
+        Pose2d shootingPose2 = new Pose2d(44, -35, -9 * Math.PI / 180);
+        Pose2d shootingPose3 = new Pose2d(56, -35, -9 * Math.PI / 180);
+        Pose2d endShootingPose;
         Pose2d zonePose;
         Pose2d wobblePose = new Pose2d(46, -32, 0);  // 43, -19, Math.PI / 6
         Pose2d wobblePose2 = new Pose2d(35, -32, 0);  // 37, -24, Math.PI / 6
@@ -229,12 +230,15 @@ public class AutoB extends LinearOpMode {
         if (isStopRequested()) return;
 
         if (numRings == 0) {
+            endShootingPose = shootingPose;
             zonePose = new Pose2d(81, -30, 0);
             zonePose2 = new Pose2d(63, -12, 3 * Math.PI / 2);
         } else if (numRings == 1) {
+            endShootingPose = shootingPose2;
             zonePose = new Pose2d(102, -54, 0);
             zonePose2 = new Pose2d(82, -35, 3 * Math.PI / 2);
         } else {
+            endShootingPose = shootingPose3;
             zonePose = new Pose2d(124, -30, 0);
             zonePose2 = new Pose2d(104, -12, 3 * Math.PI / 2);
         }
@@ -251,7 +255,7 @@ public class AutoB extends LinearOpMode {
                 .strafeTo(shootingPose3.vec(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
-        Trajectory toZone0 = drive.trajectoryBuilder(shootingPose3)
+        Trajectory toZone0 = drive.trajectoryBuilder(endShootingPose)
                 .splineToLinearHeading(zonePose, -zonePose.getHeading())
                 .build();
 
@@ -281,19 +285,27 @@ public class AutoB extends LinearOpMode {
             sleep(250);
             shooter.unpoke();
         }
-        if (numRings > 0) {
+
+        blocker.vertical();
+
+        if (numRings > 0) { // if 1 or 4 ring configuration
+
+            //setting up intaking
             shooter.longShot();
             intake.intakeSpeed(1);
             shooter.hopperDown();
-        }
-        blocker.vertical();
-        drive.followTrajectory(toShooterSpot2);
-        drive.update();
-        if (numRings > 0) {
+
+            //goes to second shooting spot
+            drive.followTrajectory(toShooterSpot2);
+            drive.update();
+
+            //stops intake before lifting hopper
+            intake.intakeSpeed(0);
             sleep(650);
             shooter.hopperUp();
             sleep(300);
-            shooter.hopperUp();
+
+            //shoots
             for (int i = 0; i < 2; i++) {
                 while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
                     sleep(25);
@@ -302,22 +314,33 @@ public class AutoB extends LinearOpMode {
                 sleep(250);
                 shooter.unpoke();
             }
+
+            //lowers hopper then revs up the intake again
             shooter.hopperDown();
-        }
-        drive.followTrajectory(toShooterSpot3);
-        drive.update();
-        if (numRings > 1) {
-            sleep(650);
-            shooter.hopperUp();
-            sleep(300);
-            for (int i = 0; i < 3; i++) {
-                while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
-                    sleep(25);
+
+            if (numRings > 1) { //if 4 ring configuration
+
+                intake.intakeSpeed(1);
+
+                //drive to location then stop intake and raise the hopper
+                drive.followTrajectory(toShooterSpot3);
+                drive.update();
+                sleep(650);
+                shooter.hopperUp();
+                sleep(300);
+
+                //shoots the rings
+                for (int i = 0; i < 3; i++) {
+                    while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+                        sleep(25);
+                    }
+                    shooter.poke();
+                    sleep(250);
+                    shooter.unpoke();
                 }
-                shooter.poke();
-                sleep(250);
-                shooter.unpoke();
+
             }
+
         }
 
         shooter.rev(0);
