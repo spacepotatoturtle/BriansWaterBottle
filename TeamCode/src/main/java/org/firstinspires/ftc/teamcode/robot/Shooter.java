@@ -34,7 +34,7 @@ public class Shooter {
             hopperDown();
         }
 
-        if (poke && robot.shooter0.getVelocity() > shootingRPM * 0.95) {
+        if (poke && (robot.shooter0.getVelocity() > 0.97 * shootingRPM && robot.shooter0.getVelocity() < 1.03 * shootingRPM)) {
             poke();
         } else {
             unpoke();
@@ -105,12 +105,17 @@ public class Shooter {
     }
 
     public void longShot() {
-        flapPos = 0.07;
+        flapPos = 0.069;
+        robot.flappyFlap.setPosition(flapPos);
+    }
+
+    public void longishShot() {
+        flapPos = 0.066;
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void longerShot() {
-        flapPos = 0.068;
+        flapPos = 0.064;
         robot.flappyFlap.setPosition(flapPos);
     }
 }

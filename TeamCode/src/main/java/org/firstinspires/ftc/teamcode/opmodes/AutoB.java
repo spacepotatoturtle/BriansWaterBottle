@@ -248,14 +248,18 @@ public class AutoB extends LinearOpMode {
                 .build();
 
         Trajectory toShooterSpot2 = drive.trajectoryBuilder(shootingPose)
+                .addTemporalMarker(0.1, () -> intake.intakeSpeed(1))
                 .strafeTo(shootingPose2.vec(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toShooterSpot3 = drive.trajectoryBuilder(shootingPose2)
+                .addTemporalMarker(0.1, () -> intake.intakeSpeed(1))
                 .strafeTo(shootingPose3.vec(), DriveConstants.SLOW, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toZone0 = drive.trajectoryBuilder(endShootingPose)
+                .addTemporalMarker(0.5, () -> wobbler.armMiddle())
+                .addTemporalMarker(0.5, () -> wobbler.armSide())
                 .splineToLinearHeading(zonePose, -zonePose.getHeading())
                 .build();
 
@@ -277,9 +281,12 @@ public class AutoB extends LinearOpMode {
         drive.followTrajectory(toShooterSpot);
         drive.update();
         shooter.longerShot();
+
         for (int i = 0; i < 3; i++) {
-            while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+            int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+            while ((robot.shooter0.getVelocity() < 0.97 * shooter.shootingRPM || robot.shooter0.getVelocity() > 1.03 * shooter.shootingRPM) && (county < 20)) {
                 sleep(25);
+                county++;
             }
             shooter.poke();
             sleep(250);
@@ -291,8 +298,8 @@ public class AutoB extends LinearOpMode {
         if (numRings > 0) { // if 1 or 4 ring configuration
 
             //setting up intaking
-            shooter.longShot();
-            intake.intakeSpeed(1);
+            shooter.longishShot();
+            //intake.intakeSpeed(1); //this now happens as a marker in the trajectory
             shooter.hopperDown();
 
             //goes to second shooting spot
@@ -300,15 +307,18 @@ public class AutoB extends LinearOpMode {
             drive.update();
 
             //stops intake before lifting hopper
+            sleep(250);
             intake.intakeSpeed(0);
-            sleep(650);
+            sleep(400);
             shooter.hopperUp();
             sleep(300);
 
             //shoots
-            for (int i = 0; i < 2; i++) {
-                while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+            for (int i = 0; i < 3; i++) {
+                int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+                while ((robot.shooter0.getVelocity() < 0.97 * shooter.shootingRPM || robot.shooter0.getVelocity() > 1.03 * shooter.shootingRPM) && (county < 20)) {
                     sleep(25);
+                    county++;
                 }
                 shooter.poke();
                 sleep(250);
@@ -320,19 +330,25 @@ public class AutoB extends LinearOpMode {
 
             if (numRings > 1) { //if 4 ring configuration
 
-                intake.intakeSpeed(1);
+                shooter.longShot();
+                //intake.intakeSpeed(1); //this now happens as a marker in the trajectory
 
                 //drive to location then stop intake and raise the hopper
                 drive.followTrajectory(toShooterSpot3);
                 drive.update();
-                sleep(650);
+
+                sleep(250);
+                intake.intakeSpeed(0);
+                sleep(400);
                 shooter.hopperUp();
                 sleep(300);
 
                 //shoots the rings
                 for (int i = 0; i < 3; i++) {
-                    while (robot.shooter0.getVelocity() < 0.95 * shooter.shootingRPM) {
+                    int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+                    while ((robot.shooter0.getVelocity() < 0.97 * shooter.shootingRPM || robot.shooter0.getVelocity() > 1.03 * shooter.shootingRPM) && (county < 20)) {
                         sleep(25);
+                        county++;
                     }
                     shooter.poke();
                     sleep(250);
@@ -347,8 +363,8 @@ public class AutoB extends LinearOpMode {
         intake.fullStop();
 
         // Drop Wobble
-        wobbler.armSide();
-        wobbler.armMiddle();
+//        wobbler.armSide();
+//        wobbler.armMiddle();
         drive.followTrajectory(toZone0);
         drive.update();
         sleep(100);
