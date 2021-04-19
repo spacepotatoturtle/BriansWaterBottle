@@ -10,7 +10,7 @@ public class Intake {
     Hardware robot;
     Telemetry telemetry;
 
-    double speed = 0.9;
+    double speed = 1.0;
     boolean slowWasPressed = false;
     boolean isSlow = false;
 

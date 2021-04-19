@@ -88,6 +88,8 @@ public class AutoB extends LinearOpMode {
 
         // Clockwise is negative
 
+        // TODO: Push rings further forward before firing to increase consistency.
+
         robot.init(hardwareMap);
         RoadrunnerDrive drive = new RoadrunnerDrive(hardwareMap);
         shooter.hopperUp();

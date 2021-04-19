@@ -63,7 +63,7 @@ public class Shooter {
     }
 
     public void hopperUp() {
-        robot.hopper.setPosition(0.119);
+        robot.hopper.setPosition(0.12);
     }
 
     public void unpoke() {

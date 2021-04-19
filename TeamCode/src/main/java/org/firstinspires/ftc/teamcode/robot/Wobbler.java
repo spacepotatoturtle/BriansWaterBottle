@@ -12,6 +12,8 @@ public class Wobbler {
     boolean toggleWasPressed;
     boolean isOpen;
 
+    int closeTimer = 11;
+
     public Wobbler(Hardware hardware, Telemetry telemetryInstance) {
         isOpen = false;
         robot = hardware;
@@ -71,11 +73,12 @@ public class Wobbler {
         isOpen = true;
     }
 
-    public void wobble(boolean toggleClaw, boolean armVertical, boolean armUp, boolean armDown, boolean armSide, boolean armBack) {
+    public void wobble(boolean toggleClaw, boolean armVertical, boolean armUp, boolean armDown, boolean armSide, boolean armBack, boolean upVertical, boolean downLeft) {
 
         if (toggleClaw) {
             if (!toggleWasPressed) {
                 if (isOpen) {
+                    closeTimer = 0;
                     close();
                 } else {
                     open();
@@ -105,6 +108,19 @@ public class Wobbler {
         if (armBack) {
             armBack();
         }
+
+        if (upVertical && closeTimer >  10) {
+            armVertical();
+            armBack();
+        }
+
+        if (downLeft) {
+            armDown();
+            armSide();
+            open();
+        }
+
+        closeTimer += 1;
 
         //telemetry.addData("Left Claw Pos: ", robot.wobbleClawLeft.getPosition());
 //        telemetry.addData("Right Claw Pos: ", robot.wobbleClawRight.getPosition());
