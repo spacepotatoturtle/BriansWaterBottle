@@ -22,16 +22,9 @@ public class Intake {
     public void intake(boolean in, boolean out, boolean slowMode) {
 
         if (slowMode) {
-            if (!slowWasPressed) {
-                if (isSlow) {
-                    speedUp();
-                } else {
-                    slowDown();
-                }
-            }
-            slowWasPressed = true;
+            slowDown();
         } else {
-            slowWasPressed = false;
+            speedUp();
         }
 
         if (in) {

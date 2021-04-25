@@ -9,6 +9,8 @@ public class Shooter {
     double flapPos = 0.05;
 
     public final int shootingRPM = 1750;
+    public final double hopperUpPos = 0.12;
+    public final double hopperDownPos = 0.0;
 
     public Shooter(Hardware hardware, Telemetry telemetryInstance) {
         robot = hardware;
@@ -28,8 +30,8 @@ public class Shooter {
             flapLower();
         }
 
-        if (hopUp) {
-            hopperUp();
+        if (hopUp && robot.hopper.getPosition() < hopperUpPos) {
+            robot.hopper.setPosition(robot.hopper.getPosition() + 0.02);
         } else if (hopDown) {
             hopperDown();
         }
