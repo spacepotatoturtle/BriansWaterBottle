@@ -92,7 +92,7 @@ public class DriveConstants {
 
     public static TrajectoryVelocityConstraint KINDA_SLOW = new MinVelocityConstraint(Arrays.asList(
             new AngularVelocityConstraint(MAX_ANG_VEL),
-            new MecanumVelocityConstraint(40, TRACK_WIDTH)
+            new MecanumVelocityConstraint(20, TRACK_WIDTH)
     ));
 
     public static TrajectoryAccelerationConstraint NORM_ACCEL = new ProfileAccelerationConstraint(MAX_ACCEL);

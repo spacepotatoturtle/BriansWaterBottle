@@ -301,7 +301,7 @@ public class AutoB extends LinearOpMode {
 
             //setting up intaking
             shooter.longishShot();
-            //intake.intakeSpeed(1); //this now happens as a marker in the trajectory
+//            intake.intakeSpeed(1); //this now happens as a marker in the trajectory
             shooter.hopperDown();
 
             //goes to second shooting spot
@@ -365,8 +365,8 @@ public class AutoB extends LinearOpMode {
         intake.fullStop();
 
         // Drop Wobble
-//        wobbler.armSide();
-//        wobbler.armMiddle();
+        wobbler.armSide();
+        wobbler.armMiddle();
         drive.followTrajectory(toZone0);
         drive.update();
         sleep(100);

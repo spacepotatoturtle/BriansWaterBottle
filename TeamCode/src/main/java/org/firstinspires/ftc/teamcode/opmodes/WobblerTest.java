@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.broken;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,7 +11,7 @@ public class WobblerTest extends LinearOpMode {
     Hardware robot = new Hardware();
     Wobbler wobbler = new Wobbler(robot, telemetry);
 
-    public void runOpMode() { //this class no longer works
+    public void runOpMode() {
 
         robot.init(hardwareMap);
 
@@ -19,7 +19,7 @@ public class WobblerTest extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            //wobbler.wobble(gamepad1.x, gamepad1.a, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_left, gamepad1.dpad_right);
+            wobbler.wobble(gamepad1.x, gamepad1.dpad_up || gamepad1.a, false, gamepad1.dpad_down, gamepad1.dpad_left, gamepad1.dpad_right || gamepad1.a, gamepad2.y, gamepad2.a);
 
             telemetry.update();
 
