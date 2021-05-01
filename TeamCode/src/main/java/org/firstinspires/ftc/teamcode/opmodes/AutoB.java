@@ -11,6 +11,8 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -96,10 +98,18 @@ public class AutoB extends LinearOpMode {
         shooter.unpoke();
         blocker.autoInit();
 
+        telemetry.addData("P", robot.shooter0.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p);
+        telemetry.addData("I", robot.shooter0.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i);
+        telemetry.addData("D", robot.shooter0.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d);
+        telemetry.addData("F", robot.shooter0.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
+        telemetry.update();
+
+        robot.shooter0.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(18, 3, 0, 1));
+
         Pose2d startingPose = new Pose2d(9, -39, 0);
-        Pose2d shootingPose = new Pose2d(35, -38, -9 * Math.PI / 180);
-        Pose2d shootingPose2 = new Pose2d(44, -35, -9 * Math.PI / 180);
-        Pose2d shootingPose3 = new Pose2d(56, -35, -9 * Math.PI / 180);
+        Pose2d shootingPose = new Pose2d(35, -38, -10 * Math.PI / 180);
+        Pose2d shootingPose2 = new Pose2d(44, -35, -10 * Math.PI / 180);
+        Pose2d shootingPose3 = new Pose2d(56, -35, -10 * Math.PI / 180);
         Pose2d endShootingPose;
         Pose2d zonePose;
         Pose2d wobblePose = new Pose2d(46, -32, 0);  // 43, -19, Math.PI / 6
@@ -290,6 +300,8 @@ public class AutoB extends LinearOpMode {
                 sleep(25);
                 county++;
             }
+            telemetry.addData("AAA", robot.shooter0.getVelocity());
+            telemetry.update();
             shooter.poke();
             sleep(250);
             shooter.unpoke();
@@ -322,6 +334,8 @@ public class AutoB extends LinearOpMode {
                     sleep(25);
                     county++;
                 }
+                telemetry.addData("AAA", robot.shooter0.getVelocity());
+                telemetry.update();
                 shooter.poke();
                 sleep(250);
                 shooter.unpoke();
@@ -352,6 +366,8 @@ public class AutoB extends LinearOpMode {
                         sleep(25);
                         county++;
                     }
+                    telemetry.addData("AAA", robot.shooter0.getVelocity());
+                    telemetry.update();
                     shooter.poke();
                     sleep(250);
                     shooter.unpoke();
@@ -402,6 +418,7 @@ public class AutoB extends LinearOpMode {
         // Park
         wobbler.armBack();
         wobbler.armVertical();
+        blocker.block();
         if (numRings != 0) {
             drive.followTrajectory(toPark);
             drive.update();
@@ -417,7 +434,6 @@ public class AutoB extends LinearOpMode {
             drive.followTrajectory(toPark1);
             drive.update();
         }
-        blocker.block();
 
     }
 

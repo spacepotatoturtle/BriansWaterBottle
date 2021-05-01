@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Shooter {
@@ -8,8 +11,8 @@ public class Shooter {
     Telemetry telemetry;
     double flapPos = 0.05;
 
-    public final int shootingRPM = 1750;
-    public final double hopperUpPos = 0.12;
+    public final int shootingRPM = 1700;
+    public final double hopperUpPos = 0.14;
     public final double hopperDownPos = 0.0;
 
     public Shooter(Hardware hardware, Telemetry telemetryInstance) {
@@ -56,8 +59,13 @@ public class Shooter {
     }
 
     public void rev(double speed) {
-        robot.shooter0.setVelocity(speed * shootingRPM);
-        robot.shooter1.setVelocity(speed * shootingRPM);
+        if (speed > 0) {
+            robot.shooter0.setVelocity(1 * shootingRPM);
+            robot.shooter1.setVelocity(1 * shootingRPM);
+        } else {
+            robot.shooter0.setVelocity(0);
+            robot.shooter1.setVelocity(0);
+        }
     }
 
     public void hopperDown() {
@@ -65,7 +73,7 @@ public class Shooter {
     }
 
     public void hopperUp() {
-        robot.hopper.setPosition(0.12);
+        robot.hopper.setPosition(0.14);
     }
 
     public void unpoke() {
@@ -96,7 +104,7 @@ public class Shooter {
     }
 
     public void goalAim() {
-        flapPos = 0.066;
+        flapPos = 0.068;
         robot.flappyFlap.setPosition(flapPos);
     }
 
@@ -117,7 +125,7 @@ public class Shooter {
     }
 
     public void longerShot() {
-        flapPos = 0.064;
+        flapPos = 0.072;
         robot.flappyFlap.setPosition(flapPos);
     }
 }

@@ -10,9 +10,9 @@ public class Drive {
     Hardware robot;
     Telemetry telemetry;
 
-    float kDrive = 0.9f;
-    float kForward = 0.5f;
-    float kStrafe = 0.8f;
+    float kDrive = 1.0f;
+    float kForward = 1.0f;
+    float kStrafe = 1.0f;
     float kTurn = 0.8f;
 
     boolean slowWasPressed = false;
@@ -88,14 +88,14 @@ public class Drive {
     }
 
     public void speedUp() {
-        kDrive = 0.9f;
-        kForward = 1.0f;
+        kDrive = 1.0f;
+        //kForward = 1.0f;
         isSlow = false;
     }
 
     public void slowDown() {
         kDrive = 0.4f;
-        kForward = 0.6f;
+        //kForward = 0.6f;
         isSlow = true;
     }
 }
