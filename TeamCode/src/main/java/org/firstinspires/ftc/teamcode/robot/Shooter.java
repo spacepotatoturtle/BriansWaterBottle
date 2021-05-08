@@ -68,6 +68,13 @@ public class Shooter {
         }
     }
 
+    public void autoRev(double speedInRPM) {
+
+        robot.shooter0.setVelocity(speedInRPM);
+        robot.shooter1.setVelocity(speedInRPM);
+
+    }
+
     public void hopperDown() {
         robot.hopper.setPosition(0.0);
     }
@@ -103,8 +110,15 @@ public class Shooter {
         robot.flappyFlap.setPosition(flapPos);
     }
 
+    public void powerShotAimAuto() {
+
+        flapPos = 0.066;
+        robot.flappyFlap.setPosition(flapPos);
+
+    }
+
     public void goalAim() {
-        flapPos = 0.068;
+        flapPos = 0.070;
         robot.flappyFlap.setPosition(flapPos);
     }
 
