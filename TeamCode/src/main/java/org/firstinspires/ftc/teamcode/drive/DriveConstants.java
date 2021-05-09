@@ -95,6 +95,11 @@ public class DriveConstants {
             new MecanumVelocityConstraint(20, TRACK_WIDTH)
     ));
 
+    public static TrajectoryVelocityConstraint PRECISE_SPLINE_SPEED = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(MAX_ANG_VEL),
+            new MecanumVelocityConstraint(30, TRACK_WIDTH)
+    ));
+
     public static TrajectoryAccelerationConstraint NORM_ACCEL = new ProfileAccelerationConstraint(MAX_ACCEL);
 
 

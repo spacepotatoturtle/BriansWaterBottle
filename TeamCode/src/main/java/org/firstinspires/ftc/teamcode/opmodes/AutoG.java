@@ -31,6 +31,7 @@ import org.firstinspires.ftc.robotcore.internal.network.CallbackLooper;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.internal.system.ContinuationSynchronizer;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.RoadrunnerDrive;
 import org.firstinspires.ftc.teamcode.robot.Blocker;
 import org.firstinspires.ftc.teamcode.robot.Hardware;
@@ -96,10 +97,10 @@ public class AutoG extends LinearOpMode {
         double[] powerShotAngles = {0, 5 * Math.PI / 180, -11 * Math.PI / 180};
 
         Pose2d startingPose = new Pose2d(9-72, -39+72, 0);
-        Pose2d powerPose = new Pose2d(64-72, -72+72, 0);
-        Pose2d powerPoseFinal = new Pose2d(64-72, -72+72, -6 * Math.PI / 180);
+        Pose2d powerPose = new Pose2d(64-72, -71+72, 0);
+        Pose2d powerPoseFinal = new Pose2d(64-72, -71+72, -6 * Math.PI / 180);
         Pose2d pickupPlace1 = new Pose2d(127-72, -35+72, -90 * Math.PI / 180);
-        Pose2d pickupPlace2 = new Pose2d(127-72, -70+72, -90 * Math.PI / 180);
+        Pose2d pickupPlace2 = new Pose2d(127-72, -78+72, -90 * Math.PI / 180);
         Pose2d zonePose;
         Pose2d wobblePose = new Pose2d(46-72, -32+72, 0);  // 43, -19, Math.PI / 6
         Pose2d wobblePose2 = new Pose2d(35-72, -34+72, 0);  // 37, -24, Math.PI / 6
@@ -267,7 +268,7 @@ public class AutoG extends LinearOpMode {
          */
 
         Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
-                .splineTo(new Vector2d(powerPose.getX(), powerPose.getY()), powerPose.getHeading())
+                .splineTo(new Vector2d(powerPose.getX(), powerPose.getY()), powerPose.getHeading(), DriveConstants.PRECISE_SPLINE_SPEED, DriveConstants.NORM_ACCEL)
                 .build();
 
         Trajectory toPickup1 = drive.trajectoryBuilder(powerPoseFinal)
@@ -434,7 +435,12 @@ public class AutoG extends LinearOpMode {
         sleep(350);
         wobbler.armVertical();
 
-        shooter.hopperUp();
+//        shooter.hopperUp();
+
+        while (robot.hopper.getPosition() < 0.14) {
+            robot.hopper.setPosition(robot.hopper.getPosition() + 0.02);
+            sleep(25);
+        }
 
         double tempPower = 1700;
         shooter.autoRev(tempPower);
