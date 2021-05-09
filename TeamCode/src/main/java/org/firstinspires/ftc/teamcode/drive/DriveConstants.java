@@ -81,9 +81,9 @@ public class DriveConstants {
      * inches.
      */
     public static double MAX_VEL = 70;
-    public static double MAX_ACCEL = 35;
-    public static double MAX_ANG_VEL = Math.toRadians(90);
-    public static double MAX_ANG_ACCEL = Math.toRadians(90);
+    public static double MAX_ACCEL = 40;
+    public static double MAX_ANG_VEL = Math.toRadians(120);
+    public static double MAX_ANG_ACCEL = Math.toRadians(120);
 
     public static TrajectoryVelocityConstraint SLOW = new MinVelocityConstraint(Arrays.asList(
             new AngularVelocityConstraint(MAX_ANG_VEL),
