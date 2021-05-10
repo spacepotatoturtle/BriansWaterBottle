@@ -34,6 +34,7 @@ import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.RoadrunnerDrive;
 import org.firstinspires.ftc.teamcode.robot.Blocker;
+import org.firstinspires.ftc.teamcode.robot.Drive;
 import org.firstinspires.ftc.teamcode.robot.Hardware;
 import org.firstinspires.ftc.teamcode.robot.Intake;
 import org.firstinspires.ftc.teamcode.robot.Shooter;
@@ -48,8 +49,8 @@ import java.util.Locale;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(group = "Performance", name = "AutoG")
-public class AutoG extends LinearOpMode {
+@Autonomous(group = "Performance", name = "AutoH")
+public class AutoH extends LinearOpMode {
 
     Hardware robot = new Hardware();
     Shooter shooter = new Shooter(robot, telemetry);
@@ -99,16 +100,117 @@ public class AutoG extends LinearOpMode {
         Pose2d startingPose = new Pose2d(9-72, -39+72, 0);
         Pose2d powerPose = new Pose2d(64-72, -71+72, 0);
         Pose2d powerPoseFinal = new Pose2d(64-72, -71+72, -6 * Math.PI / 180);
-        Pose2d pickupPlace1 = new Pose2d(125-72, -35+72, -90 * Math.PI / 180);
-        Pose2d pickupPlace2 = new Pose2d(125-72, -78+72, -90 * Math.PI / 180);
-        Pose2d zonePose;
+        Pose2d pickupPlace1 = new Pose2d(122-72, -35+72, -45 * Math.PI / 180);
+        Pose2d pickupPlace2 = new Pose2d(122-72, -82+72, -45 * Math.PI / 180);
         Pose2d wobblePose = new Pose2d(46-72, -32+72, 0);  // 43, -19, Math.PI / 6
         Pose2d wobblePose2 = new Pose2d(35-72, -34+72, 0);  // 37, -24, Math.PI / 6
-        Pose2d shootingPosefinal = new Pose2d(64-72, -48+72, 0);
-        Pose2d zonePose2;
+        Pose2d dodgyWobblePose = new Pose2d(60-72, -64+72, 0);
+        Pose2d dodgyWobblePose2 = new Pose2d(25-72, -41+72, 0);
+        Pose2d dodgyWobblePose3 = new Pose2d(26-72, -39+72, 0);
+        Pose2d shootingPose = new Pose2d(35-72, -38+72, -9 * Math.PI / 180);
+        Pose2d shootingPose2 = new Pose2d(46-72, -35+72, -9 * Math.PI / 180);
+        Pose2d shootingPose3 = new Pose2d(60-72, -35+72, -9 * Math.PI / 180);
+        Pose2d shootingPoseFinal = new Pose2d(64-72, -48+72, 0);
         Pose2d parkPose = new Pose2d(80-72, -36+72, 0);
 
+        Pose2d zonePose00Rings = new Pose2d(82-72, -30+72, 0);
+        Pose2d zonePose10Rings = new Pose2d(82-72, -32+72, 0);
+        Pose2d zonePose01Rings = new Pose2d(108-72, -54+72, 0);
+        Pose2d zonePose11Rings = new Pose2d(82-72, -35+72, 3 * Math.PI / 2);
+        Pose2d zonePose04Rings = new Pose2d(124-72, -30+72, 0);
+        Pose2d zonePose14Rings = new Pose2d(104-72, -12+72, 3 * Math.PI / 2);
+
         drive.setPoseEstimate(startingPose);
+
+        //CREATE TRAJECTORIES
+
+        telemetry.addData("Status", "Writing trajectories...");
+        telemetry.update();
+
+        Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
+                .splineTo(new Vector2d(powerPose.getX(), powerPose.getY()), powerPose.getHeading(), DriveConstants.PRECISE_SPLINE_SPEED, DriveConstants.NORM_ACCEL)
+                .build();
+
+        Trajectory toPickup1 = drive.trajectoryBuilder(powerPoseFinal)
+                .splineToLinearHeading(pickupPlace1, pickupPlace1.getHeading())
+                .build();
+
+        Trajectory toPickup2 = drive.trajectoryBuilder(pickupPlace1)
+                .lineToConstantHeading(pickupPlace2.vec(), DriveConstants.PRECISE_SPLINE_SPEED, DriveConstants.NORM_ACCEL)
+                .build();
+
+        Trajectory toZone00Rings = drive.trajectoryBuilder(pickupPlace2, true)
+                .splineToSplineHeading(zonePose00Rings, -Math.PI)
+                .addTemporalMarker(1.5, () -> wobbler.armMiddle())
+                .addTemporalMarker(1.5, () -> wobbler.armSide())
+                .splineToSplineHeading(wobblePose, wobblePose.getHeading())
+                .addSpatialMarker(zonePose00Rings.vec(), () -> wobbler.open())
+                .addSpatialMarker(zonePose00Rings.vec(), () -> intake.intakeSpeed(0.5))
+                .build();
+
+        Trajectory toZone01Rings = drive.trajectoryBuilder(pickupPlace2, true)
+                .splineToSplineHeading(zonePose01Rings, -Math.PI, DriveConstants.SLIGHTLY_SLOW, DriveConstants.NORM_ACCEL)
+                .addTemporalMarker(0, () -> wobbler.armMiddle())
+                .addTemporalMarker(0, () -> wobbler.armSide())
+                .splineTo(dodgyWobblePose.vec(), -Math.PI)
+                .splineToConstantHeading(dodgyWobblePose2.vec(), Math.PI / 2)
+                .addSpatialMarker(zonePose01Rings.vec(), () -> wobbler.open())
+                .addSpatialMarker(zonePose01Rings.vec(), () -> intake.intakeSpeed(0.5))
+                .addSpatialMarker(dodgyWobblePose.vec(), () -> wobbler.armDown())
+                .build();
+
+        Trajectory toZone04Rings = drive.trajectoryBuilder(pickupPlace2, true)
+                .splineToSplineHeading(zonePose04Rings, -Math.PI)
+                .addTemporalMarker(1.5, () -> wobbler.armMiddle())
+                .addTemporalMarker(1.5, () -> wobbler.armSide())
+                .splineToSplineHeading(dodgyWobblePose, dodgyWobblePose.getHeading())
+                .addSpatialMarker(zonePose04Rings.vec(), () -> wobbler.open())
+                .addSpatialMarker(zonePose04Rings.vec(), () -> intake.intakeSpeed(0.5))
+                .build();
+
+        Trajectory toWobble2 = drive.trajectoryBuilder(wobblePose)
+                .strafeTo(wobblePose2.vec())
+                .build();
+
+        Trajectory toDodgyWobble = drive.trajectoryBuilder(dodgyWobblePose2)
+                .strafeTo(dodgyWobblePose3.vec())
+                .build();
+
+        // For 0 rings
+        Trajectory toShootingGoal0Rings = drive.trajectoryBuilder(wobblePose2)
+                .splineTo(shootingPoseFinal.vec(), shootingPoseFinal.getHeading())
+                .addTemporalMarker(0.5, () -> robot.hopper.setPosition(0.14))
+                .build();
+
+        // For 1 ring
+        Trajectory toShootingGoal01Ring = drive.trajectoryBuilder(wobblePose2)
+                .splineToLinearHeading(shootingPose, 0)
+                .addTemporalMarker(0.1, () -> robot.hopper.setPosition(0.14))
+                .build();
+
+        Trajectory toShootingGoal11Ring = drive.trajectoryBuilder(shootingPose)
+                .splineToLinearHeading(shootingPoseFinal, 0)
+                .addTemporalMarker(0, () -> intake.takeIn())
+                .addTemporalMarker(0, () -> shooter.hopperDown())
+                .build();
+
+        Trajectory toZone10Rings = drive.trajectoryBuilder(shootingPoseFinal)
+                .splineToLinearHeading(zonePose10Rings, 0)
+                .build();
+
+        Trajectory toZone11Rings = drive.trajectoryBuilder(shootingPoseFinal)
+                .splineToLinearHeading(zonePose11Rings, 0)
+                .build();
+
+        Trajectory toZone14Rings = drive.trajectoryBuilder(shootingPoseFinal)
+                .splineToLinearHeading(zonePose14Rings, 0)
+                .build();
+
+        Trajectory toZone0 = null;
+        Trajectory toZone1 = null;
+
+        telemetry.addData("Status", "Booting up webcam...");
+        telemetry.update();
 
         callbackHandler = CallbackLooper.getDefault().getHandler();
 
@@ -124,6 +226,9 @@ public class AutoG extends LinearOpMode {
         startCamera();
         if (cameraCaptureSession == null) return;
 
+        telemetry.addData("Status", "Waiting for start...");
+        telemetry.update();
+
         waitForStart();
 
         int numRings = 0;
@@ -135,11 +240,13 @@ public class AutoG extends LinearOpMode {
             // Approx. 135, 140, 139 Floor Color.
             int[] pixels = new int[640 * 480];
             bmp.getPixels(pixels, 0, 640, 0, 0, 640, 480);
-            telemetry.addData("Pixel 0,0,R: ", (bmp.getPixel(320, 240) >> 16) & 0xff);
-            telemetry.addData("Pixel 0,0,G: ", (bmp.getPixel(320, 240) >> 8) & 0xff);
-            telemetry.addData("Pixel 0,0,B: ", (bmp.getPixel(320, 240)) & 0xff);
-            telemetry.addData("Scan Output: ", scan(bmp));
-            onNewFrame(bmp);
+//            telemetry.addData("Pixel 0,0,R: ", (bmp.getPixel(320, 240) >> 16) & 0xff);
+//            telemetry.addData("Pixel 0,0,G: ", (bmp.getPixel(320, 240) >> 8) & 0xff);
+//            telemetry.addData("Pixel 0,0,B: ", (bmp.getPixel(320, 240)) & 0xff);
+//            telemetry.addData("Scan Output: ", scan(bmp));
+//            onNewFrame(bmp);
+
+            telemetry.addData("Status", "Beginning calculation...");
 
             int maxWidth = 0;
             int width = 0;
@@ -223,83 +330,31 @@ public class AutoG extends LinearOpMode {
             }
         }
 
+        telemetry.addData("Status", "Closing camera...");
+        telemetry.update();
+
         closeCamera();
 
+        telemetry.addData("Status", "Running...");
         telemetry.update();
 
         wobbler.close();
         shooter.powerShotAim();
 
-        numRings = 0; //NOTICE THIS LINE IF WE ACTUALLY WANT TO RUN FOR ANYTHING OTHER THAN 1 ring
+        numRings = 1; //NOTICE THIS LINE IF WE ACTUALLY WANT TO RUN FOR ANYTHING OTHER THAN 1 ring
 
         if (isStopRequested()) return;
 
         if (numRings == 0) {
-            zonePose = new Pose2d(90-72, -30+72, 0);
-            zonePose2 = new Pose2d(82-72, -32+72, 0);
+            toZone0 = toZone00Rings;
+            toZone1 = toZone10Rings;
         } else if (numRings == 1) {
-            zonePose = new Pose2d(102-72, -54+72, 0);
-            zonePose2 = new Pose2d(82-72, -35+72, 3 * Math.PI / 2);
+            toZone0 = toZone01Rings;
+            toZone1 = toZone11Rings;
         } else {
-            zonePose = new Pose2d(124-72, -30+72, 0);
-            zonePose2 = new Pose2d(104-72, -12+72, 3 * Math.PI / 2);
+            toZone0 = toZone04Rings;
+            toZone1 = toZone14Rings;
         }
-
-        /*
-
-        Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
-                .splineToLinearHeading(shootingPose, 0, DriveConstants.KINDA_SLOW, DriveConstants.NORM_ACCEL)
-                .build();
-
-        Trajectory toShooterSpot2 = drive.trajectoryBuilder(shootingPose)
-                .addTemporalMarker(0.1, () -> intake.intakeSpeed(1))
-                .strafeTo(shootingPose2.vec(), DriveConstants.KINDA_SLOW, DriveConstants.NORM_ACCEL)
-                .build();
-
-        Trajectory toShooterSpot3 = drive.trajectoryBuilder(shootingPose2)
-                .addTemporalMarker(0.1, () -> intake.intakeSpeed(1))
-                .strafeTo(shootingPose3.vec(), DriveConstants.KINDA_SLOW, DriveConstants.NORM_ACCEL)
-                .build();
-
-        Trajectory toZone0 = drive.trajectoryBuilder(shootingPose3)
-                .splineToLinearHeading(zonePose, -zonePose.getHeading())
-                .build();
-
-         */
-
-        Trajectory toShooterSpot = drive.trajectoryBuilder(startingPose)
-                .splineTo(new Vector2d(powerPose.getX(), powerPose.getY()), powerPose.getHeading(), DriveConstants.PRECISE_SPLINE_SPEED, DriveConstants.NORM_ACCEL)
-                .build();
-
-        Trajectory toPickup1 = drive.trajectoryBuilder(powerPoseFinal)
-                .splineToLinearHeading(pickupPlace1, pickupPlace1.getHeading())
-                .build();
-
-        Trajectory toPickup2 = drive.trajectoryBuilder(pickupPlace1)
-                .splineToLinearHeading(pickupPlace2, pickupPlace2.getHeading())
-                .build();
-
-        Trajectory toZone0 = drive.trajectoryBuilder(pickupPlace2)
-                .splineToLinearHeading(zonePose, -zonePose.getHeading())
-                .addTemporalMarker(1.5, () -> wobbler.armMiddle())
-                .addTemporalMarker(1.5, () -> wobbler.armSide())
-                .build();
-
-        Trajectory toWobble2 = drive.trajectoryBuilder(wobblePose)
-                .strafeTo(wobblePose2.vec())
-                .build();
-
-        Trajectory toShootingFinal = drive.trajectoryBuilder(wobblePose2)
-                .splineTo(new Vector2d(shootingPosefinal.getX(), shootingPosefinal.getY()), shootingPosefinal.getHeading())
-                .build();
-
-        Trajectory toZone1 = drive.trajectoryBuilder(shootingPosefinal)
-                .splineToLinearHeading(zonePose2, 0)
-                .build();
-
-        Trajectory toPark = drive.trajectoryBuilder(zonePose2)
-                .strafeTo(parkPose.vec())
-                .build();
 
         // High shots
         wobbler.armVertical();
@@ -328,73 +383,6 @@ public class AutoG extends LinearOpMode {
         }
         blocker.vertical();
 
-        /*
-        if (numRings > 0) { // if 1 or 4 ring configuration
-
-            //setting up intaking
-            shooter.longishShot();
-            //intake.intakeSpeed(1); //this now happens as a marker in the trajectory
-            shooter.hopperDown();
-
-            //goes to second shooting spot
-            drive.followTrajectory(toShooterSpot2);
-            drive.update();
-
-            //stops intake before lifting hopper
-            sleep(250);
-            intake.intakeSpeed(0);
-            sleep(400);
-            shooter.hopperUp();
-            sleep(300);
-
-            //shoots
-            for (int i = 0; i < 3; i++) {
-                int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
-                while ((robot.shooter0.getVelocity() < 0.97 * shooter.shootingRPM || robot.shooter0.getVelocity() > 1.03 * shooter.shootingRPM) && (county < 20)) {
-                    sleep(25);
-                    county++;
-                }
-                shooter.poke();
-                sleep(250);
-                shooter.unpoke();
-            }
-
-            //lowers hopper then revs up the intake again
-            shooter.hopperDown();
-
-            if (numRings > 1) { //if 4 ring configuration
-
-                shooter.longShot();
-                //intake.intakeSpeed(1); //this now happens as a marker in the trajectory
-
-                //drive to location then stop intake and raise the hopper
-                drive.followTrajectory(toShooterSpot3);
-                drive.update();
-
-                sleep(250);
-                intake.intakeSpeed(0);
-                sleep(400);
-                shooter.hopperUp();
-                sleep(300);
-
-                //shoots the rings
-                for (int i = 0; i < 3; i++) {
-                    int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
-                    while ((robot.shooter0.getVelocity() < 0.97 * shooter.shootingRPM || robot.shooter0.getVelocity() > 1.03 * shooter.shootingRPM) && (county < 20)) {
-                        sleep(25);
-                        county++;
-                    }
-                    shooter.poke();
-                    sleep(250);
-                    shooter.unpoke();
-                }
-
-            }
-
-        }
-
-         */
-
         shooter.rev(0);
         intake.fullStop();
         shooter.hopperDown();
@@ -409,27 +397,37 @@ public class AutoG extends LinearOpMode {
 
         // Drop Wobble
         drive.followTrajectory(toZone0);
-        intake.intakeSpeed(0.5);
-
         drive.update();
-        sleep(100);
-        wobbler.open();
-        sleep(100);
-        wobbler.armVertical();
-        wobbler.armBack();
+
 
         // Pick up second Wobble
+        /*
         Trajectory toWobble = drive.trajectoryBuilder(zonePose)
                 .strafeTo(wobblePose.vec())
                 .build();
         drive.followTrajectory(toWobble);
         drive.update();
-        wobbler.armDown();
-        sleep(200);
-        drive.followTrajectory(toWobble2);
-        drive.update();
-        intake.fullStop();
+         */
 
+        if (numRings == 0) {
+
+            wobbler.armDown();
+            wobbler.armBack();
+            sleep(200);
+            drive.followTrajectory(toWobble2);
+            drive.update();
+            intake.fullStop();
+
+        } else {
+
+            wobbler.armDown();
+            wobbler.armSide();
+            sleep(200);
+            drive.followTrajectory(toDodgyWobble);
+            drive.update();
+            intake.fullStop();
+
+        }
 
         wobbler.close();
         sleep(350);
@@ -444,26 +442,69 @@ public class AutoG extends LinearOpMode {
 
         double tempPower = 1700;
         shooter.autoRev(tempPower);
-        shooter.goalAim();
 
-        drive.followTrajectory(toShootingFinal);
-        drive.update();
+        if (numRings == 0) {
 
-        for (int i = 0; i < 3; i++) {
+            shooter.goalAim();
 
-            int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
-            while ((robot.shooter0.getVelocity() < 0.95 * tempPower || robot.shooter0.getVelocity() > 1.05 * tempPower) && (county < 20)) {
-                sleep(25);
-                county++;
+            drive.followTrajectory(toShootingGoal0Rings);
+            drive.update();
+
+            for (int i = 0; i < 3; i++) {
+
+                int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+                while ((robot.shooter0.getVelocity() < 0.95 * tempPower || robot.shooter0.getVelocity() > 1.05 * tempPower) && (county < 20)) {
+                    sleep(25);
+                    county++;
+                }
+                shooter.poke();
+                sleep(250);
+                shooter.unpoke();
+
             }
-            shooter.poke();
-            sleep(250);
-            shooter.unpoke();
+
+        } else if (numRings == 1) {
+
+            robot.flappyFlap.setPosition(0.077);
+
+            drive.followTrajectory(toShootingGoal01Ring);
+            drive.update();
+
+            for (int i = 0; i < 3; i++) {
+
+                int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+                while ((robot.shooter0.getVelocity() < 0.95 * tempPower || robot.shooter0.getVelocity() > 1.05 * tempPower) && (county < 20)) {
+                    sleep(25);
+                    county++;
+                }
+                shooter.poke();
+                sleep(250);
+                shooter.unpoke();
+
+            }
+
+            drive.followTrajectory(toShootingGoal11Ring);
+            drive.update();
+
+            shooter.goalAim();
+            shooter.hopperUp();
+
+            for (int i = 0; i < 2; i++) {
+
+                int county = 0; //tries to rev up for 0.5 seconds before just giving up and shooting
+                while ((robot.shooter0.getVelocity() < 0.95 * tempPower || robot.shooter0.getVelocity() > 1.05 * tempPower) && (county < 20)) {
+                    sleep(25);
+                    county++;
+                }
+                shooter.poke();
+                sleep(250);
+                shooter.unpoke();
+
+            }
 
         }
 
         shooter.rev(0);
-
 
         // Drop second Wobble
         drive.followTrajectory(toZone1);

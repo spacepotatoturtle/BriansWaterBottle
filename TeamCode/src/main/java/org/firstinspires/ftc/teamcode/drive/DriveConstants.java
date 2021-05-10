@@ -100,6 +100,11 @@ public class DriveConstants {
             new MecanumVelocityConstraint(30, TRACK_WIDTH)
     ));
 
+    public static TrajectoryVelocityConstraint SLIGHTLY_SLOW = new MinVelocityConstraint(Arrays.asList(
+            new AngularVelocityConstraint(MAX_ANG_VEL),
+            new MecanumVelocityConstraint(55, TRACK_WIDTH)
+    ));
+
     public static TrajectoryAccelerationConstraint NORM_ACCEL = new ProfileAccelerationConstraint(MAX_ACCEL);
 
 

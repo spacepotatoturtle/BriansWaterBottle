@@ -101,7 +101,7 @@ public class Hardware {
         wobbleClawLeft.setPosition(0.9);
         wobbleClawRight.setPosition(0.18);
         flappyFlap.setPosition(0.255);
-        spin.setPosition(0.32);
+        spin.setPosition(0.34);
         lift1.setPosition(0.28);
         lift2.setPosition(0.28);
 

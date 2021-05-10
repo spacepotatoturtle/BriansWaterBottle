@@ -112,7 +112,7 @@ public class Shooter {
 
     public void powerShotAimAuto() {
 
-        flapPos = 0.063;
+        flapPos = 0.071;
         robot.flappyFlap.setPosition(flapPos);
 
     }
