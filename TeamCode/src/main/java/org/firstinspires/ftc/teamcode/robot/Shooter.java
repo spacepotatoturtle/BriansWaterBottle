@@ -134,12 +134,12 @@ public class Shooter {
     }
 
     public void longishShot() {
-        flapPos = 0.066;
+        flapPos = 0.070;
         robot.flappyFlap.setPosition(flapPos);
     }
 
     public void longerShot() {
-        flapPos = 0.072;
+        flapPos = 0.075;
         robot.flappyFlap.setPosition(flapPos);
     }
 }

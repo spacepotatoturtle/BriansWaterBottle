@@ -11,6 +11,8 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -92,6 +94,8 @@ public class AutoG extends LinearOpMode {
         shooter.hopperUp();
         shooter.unpoke();
         blocker.autoInit();
+
+        robot.shooter0.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(18, 3, 0, 1));
 
         double powerShotRPM = 1450;
         double[] powerShotAngles = {0, 5 * Math.PI / 180, -11 * Math.PI / 180};
